@@ -6,6 +6,11 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
+[![Download Android APK](https://img.shields.io/badge/Download-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.1.0/DeskPulse-0.1.0.apk)
+[![Download Windows x64](https://img.shields.io/badge/Download-Windows_x64_ZIP-0078D4?style=for-the-badge)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.1.0/DeskPulse-0.1.0-windows-x64.zip)
+
+[v0.1.0 preview · Release notes and SHA-256 checksums](https://github.com/chzhangtud/DeskPulse/releases/tag/v0.1.0)
+
 [![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](android/)
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
 [![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=flat-square&logo=dotnet&logoColor=white)](collector/DeskPulse.Collector.csproj)
@@ -41,6 +46,15 @@ These screenshots render the Android app's bundled HTML/CSS/JavaScript interface
 
 ## Quick start
 
+### Install a downloaded build
+
+1. Download the **Windows x64 ZIP** above and extract the entire archive into one folder. Run `DeskPulse.Collector.exe`; no .NET installation is required.
+2. In an administrator PowerShell window opened in that folder, run `./Allow-Lan.ps1 -Program "$PWD/DeskPulse.Collector.exe" -LocalAddress 192.168.1.20`, replacing the example address with the collector's printed LAN address.
+3. Download the **Android APK** above and install it on an Android 10+ phone. This preview uses a development signing certificate.
+4. Privately transfer the collector's `state/pairing.txt` to the phone. In **Settings → Connection → Import setup file**, import it and tap **Pair computer** within ten minutes of starting the collector.
+
+Keep the PC and phone on a reachable LAN. Preserve the collector's `state/` folder when upgrading. The release includes `SHA256SUMS.txt`; use `Get-FileHash -Algorithm SHA256` to verify either download.
+
 ### 1. Build from source
 
 Requirements: Windows 10/11 x64, Git, .NET 8 SDK, JDK 17+, Android SDK Platform / Build-tools 35, and Node.js 18+. Python 3.10+ is needed for collector integration tests. Set `ANDROID_HOME` and `JAVA_HOME` to your SDK / JDK, or pass their paths as build script parameters.
@@ -51,7 +65,7 @@ cd DeskPulse
 ./scripts/Build.ps1
 ```
 
-The build creates these local outputs. Prebuilt installers are not included in the repository.
+For installation without build tools, use the release downloads above. Building from source creates these local outputs:
 
 | Output | Purpose |
 | --- | --- |
