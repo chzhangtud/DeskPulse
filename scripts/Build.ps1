@@ -23,6 +23,7 @@ try {
     Copy-Item -LiteralPath android\app\build\outputs\apk\debug\app-debug.apk -Destination artifacts\android\DeskPulse-0.1.0.apk
     Copy-Item -LiteralPath scripts\Start-Collector.ps1,scripts\Allow-Lan.ps1,scripts\Install-CpuSensor.ps1,scripts\Register-CollectorStartup.ps1,scripts\Watch-Collector.ps1 -Destination artifacts\collector
     Copy-Item -LiteralPath THIRD_PARTY_NOTICES.md -Destination artifacts\collector
+    Copy-Item -LiteralPath LICENSE -Destination artifacts\collector
     Copy-Item -LiteralPath licenses -Destination artifacts\collector -Recurse -Force
     $packageRoot = $env:NUGET_PACKAGES
     if (-not $packageRoot) { $packageRoot = Join-Path $env:USERPROFILE '.nuget\packages' }

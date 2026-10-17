@@ -17,6 +17,7 @@ A landscape PC monitor and independent desk display for Android.
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
 [![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=flat-square&logo=dotnet&logoColor=white)](collector/DeskPulse.Collector.csproj)
 [![Languages](https://img.shields.io/badge/UI-English%20%2F%20简体中文-62D8D2?style=flat-square)](#配置)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
 [🚀 快速开始](#快速开始) · [🖼️ 界面预览](#界面预览) · [⚙️ 配置](#配置) · [🤖 Agent 部署](docs/AGENT_DEPLOY.md)
 
@@ -162,3 +163,8 @@ licenses/     第三方许可原文
 配对码、客户端状态、证书、日志、构建产物及内部计划均不纳入 Git。不要将 `state/`、控制台中的配对字符串或含真实主机信息的截图附到公开 Issue。`/health` 会向局域网请求方返回机器名；遥测样本还包含硬件、进程和网卡信息。
 
 Android 无第三方运行库依赖。Windows 使用 LibreHardwareMonitor；可选驱动、天气、新闻与行情来源见 [第三方声明](THIRD_PARTY_NOTICES.md)。第三方许可仅适用于相应组件，具体实现与信任边界见 [架构说明](docs/ARCHITECTURE.md)。
+
+## 许可证
+
+本项目原创代码采用 [MIT 许可证](LICENSE)。
+第三方组件保留各自许可证，详见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

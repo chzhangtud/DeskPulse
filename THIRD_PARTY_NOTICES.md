@@ -1,5 +1,7 @@
 # Third-party and source notices
 
+DeskPulse's original code is licensed under the MIT License in the repository's `LICENSE` file. The third-party components below retain their respective licenses.
+
 - Android has no third-party library dependencies. The Windows collector uses unchanged [LibreHardwareMonitorLib 0.9.6](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor/tree/3d331e3370efb858411f19511373eff65a218701) under MPL-2.0 for CPU temperature. Only CPU monitoring is enabled. Its license and upstream notices are in `licenses/` and copied into the distribution.
 - Transitive package dependencies include DiskInfoToolkit, RAMSPDToolkit-NDD and BlackSharp.Core (MPL-2.0), HidSharp (its bundled permissive license), Mono.Posix.NETStandard and Microsoft System libraries. Resolved versions, original package metadata, license files and exact available source repository/commit links are copied to the distribution's `licenses/PACKAGES.md` and adjacent `.nuspec` files. The MPL-2.0 license covers the unchanged MPL library files; their source is available at the linked upstream repositories/revisions.
 - [PawnIO 2.2.0](https://github.com/namazso/PawnIO.Setup/releases/tag/2.2.0) is an optional separately installed signed hardware-access driver. Its installer is not bundled. `Install-CpuSensor.ps1` obtains the unmodified official installer and verifies its pinned SHA-256 and publisher signature before installing the normal signed-module edition. No unrestricted driver edition is installed.

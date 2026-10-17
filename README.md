@@ -15,6 +15,7 @@
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
 [![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=flat-square&logo=dotnet&logoColor=white)](collector/DeskPulse.Collector.csproj)
 [![Languages](https://img.shields.io/badge/UI-English%20%2F%20简体中文-62D8D2?style=flat-square)](#configuration)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
 [🚀 Quick start](#quick-start) · [🖼️ Screenshots](#screenshots) · [⚙️ Configuration](#configuration) · [🤖 Agent deployment](docs/AGENT_DEPLOY.md)
 
@@ -160,3 +161,8 @@ licenses/      Original third-party license texts
 Pairing codes, client state, certificates, logs, build outputs, and internal plans are excluded from Git. Keep `state/`, setup strings printed in the console, and screenshots containing real host information out of public issues. The `/health` endpoint returns the machine name to LAN callers; telemetry also includes hardware, process, and network adapter information.
 
 Android has no third-party runtime library dependencies. Windows uses LibreHardwareMonitor. See [third-party notices](THIRD_PARTY_NOTICES.md) for optional drivers and weather, news, and market data sources. Third-party licenses apply to their respective components. See the [architecture guide](docs/ARCHITECTURE.md) for implementation details and trust boundaries.
+
+## License
+
+DeskPulse's original code is licensed under the [MIT License](LICENSE).
+Third-party components retain their respective licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
