@@ -4,10 +4,8 @@ using LibreHardwareMonitor.PawnIo;
 
 namespace DeskPulse;
 
-public sealed record CpuThermalReading(double? ValueC, string Source, DateTimeOffset SampledAt);
-
 // Keep optional hardware/driver work off the 1 Hz OS sampler and HTTP request path.
-public sealed class CpuTemperature
+public sealed class WindowsCpuTemperature : ICpuTemperature
 {
     CpuThermalReading latest = new(null, "Waiting for CPU temperature sensor", DateTimeOffset.UtcNow);
     public CpuThermalReading Latest

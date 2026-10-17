@@ -1,5 +1,7 @@
 # Installation and operation
 
+The Android display can pair with a Windows or Linux collector. This page covers Windows and shared Android settings; see [Linux installation, sensors and systemd](LINUX.md) for Linux/WSL. Existing v0.1.0 Android APKs use the same protocol and can pair with a Linux build from current source.
+
 ## Windows collector
 
 Use Windows 10/11 x64. Build with `scripts/Build.ps1`, or use the prepared `artifacts/collector` directory. Do not copy only the EXE: the runtime and application DLLs next to it are required.

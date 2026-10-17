@@ -15,6 +15,7 @@ A landscape PC monitor and independent desk display for Android.
 
 [![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](android/)
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
+[![Linux](https://img.shields.io/badge/Linux-x64%20%2F%20ARM64-FCC624?style=flat-square&logo=linux&logoColor=black)](docs/LINUX.md)
 [![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=flat-square&logo=dotnet&logoColor=white)](collector/DeskPulse.Collector.csproj)
 [![Languages](https://img.shields.io/badge/UI-English%20%2F%20简体中文-62D8D2?style=flat-square)](#配置)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
@@ -31,9 +32,9 @@ A landscape PC monitor and independent desk display for Android.
 - **独立信息屏**：电脑离线后显示时钟、天气、每日美股走势与 RSS 新闻；连接恢复后自动回到监控。
 - **适合常驻桌面**：横屏沉浸显示、深浅主题与定时切换、本地壁纸轮播、英语 / 简体中文。
 - **局域网配对**：固定证书的 HTTPS、十分钟内单次有效的配对码、Android Keystore 加密保存凭据。
-- **可选温度与自启动**：签名驱动支持 CPU 温度；Windows 登录后可隐藏启动并在进程退出后自动恢复。
+- **可选温度与自启动**：Windows 使用签名驱动，Linux 读取内核温度传感器；Windows 登录任务和 Linux 用户 systemd 服务均支持自动恢复。
 
-不支持的传感器明确显示不可用。CPU 温度需要额外安装 PawnIO 并以管理员权限运行采集器；GPU 传感器目前支持 NVIDIA。
+采集器支持 Windows 和 Linux，使用相同的 Android 配对协议。不支持的传感器明确显示不可用。Windows CPU 温度需要 PawnIO 和管理员权限；Linux 从内核 hwmon/thermal 读取 CPU 温度。GPU 传感器目前支持 NVIDIA。
 
 ## 界面预览
 
@@ -49,6 +50,19 @@ A landscape PC monitor and independent desk display for Android.
 
 ## 快速开始
 
+### Linux（从当前源码构建）
+
+需要 glibc Linux、.NET 8 SDK、Bash 和 Python 3。构建结果包含 .NET 运行时。
+
+```bash
+bash scripts/linux/build.sh
+bash scripts/linux/start-collector.sh --listen 192.168.1.20 --port 9443
+```
+
+将示例地址换成本机局域网地址，私下将 `artifacts/linux-x64/state/pairing.txt` 导入手机配对。ARM64 主机使用对应的 `linux-arm64` 目录。详见 [Linux 安装、温度、局域网防火墙和 systemd 指南](docs/LINUX.md)。
+
+现有 v0.1.0 下载按钮仍为此前发布的 Windows/Android 预览版；Linux 请从当前源码构建，原 Android APK 可继续使用。WSL 测试验证 Linux 虚拟机内的指标和服务；CPU 温度可能不暴露，NAT 模式下手机也不能直接访问 WSL 地址。
+
 ### 直接下载安装
 
 1. 点击上方 **Windows x64 ZIP**，完整解压到同一目录，运行 `DeskPulse.Collector.exe`，无需另装 .NET。
@@ -58,7 +72,7 @@ A landscape PC monitor and independent desk display for Android.
 
 电脑与手机需要在局域网内互通。升级时保留采集器的 `state/` 文件夹。Release 附有 `SHA256SUMS.txt`，可用 `Get-FileHash -Algorithm SHA256` 校验下载文件。
 
-### 1. 从源码构建
+### 1. 构建 Windows / Android
 
 需要 Windows 10/11 x64、Git、.NET 8 SDK、JDK 17+、Android SDK Platform / Build-tools 35、Node.js 18+。Python 3.10+ 用于采集器集成测试。将 `ANDROID_HOME` 和 `JAVA_HOME` 指向本机 SDK / JDK，或通过构建脚本参数传入。
 
@@ -140,6 +154,7 @@ adb shell am start -W -n io.deskpulse.app/.MainActivity
 
 ```powershell
 node --test tests/core.test.cjs tests/i18n.test.cjs tests/stocks.test.cjs
+dotnet run --project tests/Collector.Tests -c Release
 dotnet build collector -c Release
 python tests/collector_integration.py
 ./android/gradlew.bat -p android assembleDebug lintDebug
@@ -151,8 +166,8 @@ Node 测试不需要设备或网络。采集器集成测试使用独立的临时
 
 ```text
 android/       Android 应用与打包在 APK 内的界面
-collector/     Windows 传感器与 HTTPS API
-scripts/       构建、启动、防火墙、温度驱动与登录自启动
+collector/     跨平台采集器、Platforms/ 系统实现与 HTTPS API
+scripts/       Windows 构建与部署；linux/ 下为 Bash/systemd 部署
 tests/        逻辑、采集器和真机验证脚本
 docs/         安装、Agent 部署、架构及公开展示图
 licenses/     第三方许可原文

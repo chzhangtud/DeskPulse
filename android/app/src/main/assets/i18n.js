@@ -308,6 +308,8 @@
     "No feed entries found": "订阅中没有内容",
     "Source HTTP ": "资讯源 HTTP ",
     "Collector HTTP ": "采集器 HTTP ",
+    "Unavailable: Linux CPU temperature sensor not exposed or not readable":
+      "不可用：Linux 内核未暴露 CPU 温度传感器，或当前用户没有读取权限",
   };
   const keys = Object.keys(zh).sort((a, b) => b.length - a.length);
   const fragments = new RegExp(

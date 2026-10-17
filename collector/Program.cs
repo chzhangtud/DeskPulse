@@ -8,11 +8,12 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 using DeskPulse;
 
-if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("The collector requires Windows.");
+if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux()) throw new PlatformNotSupportedException("The collector supports Windows and Linux.");
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddFilter("Microsoft.AspNetCore", LogLevel.Warning);
 var statePath = Path.GetFullPath(builder.Configuration["state"] ?? Path.Combine(AppContext.BaseDirectory, "state"));
 Directory.CreateDirectory(statePath);
+if (OperatingSystem.IsLinux()) File.SetUnixFileMode(statePath, UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
 var listen = builder.Configuration["listen"] ?? NetworkInterface.GetAllNetworkInterfaces()
     .Where(n => n.OperationalStatus == OperationalStatus.Up && n.NetworkInterfaceType is NetworkInterfaceType.Ethernet or NetworkInterfaceType.Wireless80211)
     .Where(n => n.GetIPProperties().GatewayAddresses.Count > 0)
@@ -31,6 +32,7 @@ if (!File.Exists(certFile))
     File.WriteAllBytes(certFile, created.Export(X509ContentType.Pfx));
 }
 using var cert = new X509Certificate2(certFile);
+if (OperatingSystem.IsLinux()) File.SetUnixFileMode(certFile, UnixFileMode.UserRead | UnixFileMode.UserWrite);
 var fingerprint = cert.GetCertHashString(HashAlgorithmName.SHA256);
 var auth = new Security(statePath);
 builder.WebHost.ConfigureKestrel(k =>
@@ -80,8 +82,10 @@ var setup = JsonSerializer.Serialize(new { version = 1, host = listen, port, fin
 var pairing = "deskpulse:" + Convert.ToBase64String(Encoding.UTF8.GetBytes(setup));
 var pairingPath = Path.Combine(statePath, "pairing.txt");
 File.WriteAllText(pairingPath, pairing);
+if (OperatingSystem.IsLinux()) File.SetUnixFileMode(pairingPath, UnixFileMode.UserRead | UnixFileMode.UserWrite);
 Console.WriteLine($"\nDeskPulse 0.1 | HTTPS {listen}:{port}\nCertificate SHA-256: {fingerprint}\n");
-Console.WriteLine($"On the phone, import this file or paste its contents in Settings:\n{pairingPath}\n\n{pairing}\n");
+Console.WriteLine($"On the phone, import this file in Settings:\n{pairingPath}\n");
+if (!bool.TryParse(builder.Configuration["quiet-pairing"], out var quietPairing) || !quietPairing) Console.WriteLine(pairing + "\n");
 Console.WriteLine("Pairing expires in 10 minutes and is single-use. Restart to generate a new setup code.");
 Console.WriteLine("Allow only this executable, TCP port, LAN address and local subnet. Do not forward this port.\n");
 await app.RunAsync();

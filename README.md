@@ -13,6 +13,7 @@
 
 [![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](android/)
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
+[![Linux](https://img.shields.io/badge/Linux-x64%20%2F%20ARM64-FCC624?style=flat-square&logo=linux&logoColor=black)](docs/LINUX.md)
 [![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=flat-square&logo=dotnet&logoColor=white)](collector/DeskPulse.Collector.csproj)
 [![Languages](https://img.shields.io/badge/UI-English%20%2F%20简体中文-62D8D2?style=flat-square)](#configuration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
@@ -29,9 +30,9 @@
 - **Independent information display:** clock, weather, daily US stock charts, and RSS headlines when the PC is offline. Monitoring resumes automatically when the connection returns.
 - **Made for the desk:** immersive landscape layout, light and dark themes, scheduled theme changes, local wallpaper rotation, and English / Simplified Chinese support.
 - **Private LAN pairing:** certificate-pinned HTTPS, single-use setup codes valid for ten minutes, and credentials encrypted with Android Keystore.
-- **Optional temperature and startup support:** a signed driver enables CPU temperature readings; a Windows sign-in task can start the collector hidden and recover after a process exit.
+- **Optional temperature and startup support:** Windows uses a signed CPU sensor driver; Linux reads kernel sensors. Windows sign-in tasks and Linux user systemd services support automatic recovery.
 
-Unsupported sensors display unavailable. CPU temperature requires PawnIO and an elevated collector. GPU sensors currently support NVIDIA.
+Collectors support Windows and Linux with the same Android pairing protocol. Unsupported sensors display unavailable. Windows CPU temperature requires PawnIO and elevation; Linux reads CPU-labelled hwmon/thermal sensors. GPU sensors currently support NVIDIA.
 
 ## Screenshots
 
@@ -47,6 +48,19 @@ These screenshots render the Android app's bundled HTML/CSS/JavaScript interface
 
 ## Quick start
 
+### Linux (build current source)
+
+Building needs a glibc Linux host, .NET 8 SDK, Bash and Python 3. The output includes the .NET runtime.
+
+```bash
+bash scripts/linux/build.sh
+bash scripts/linux/start-collector.sh --listen 192.168.1.20 --port 9443
+```
+
+Replace the example with the host's LAN address. Privately import `artifacts/linux-x64/state/pairing.txt` on the phone to pair. ARM64 hosts use the corresponding `linux-arm64` directory. See the [Linux guide](docs/LINUX.md) for CPU sensors, scoped firewall rules and user systemd startup.
+
+The v0.1.0 download buttons still provide the earlier Windows/Android preview. Build current source for Linux; the existing Android APK is compatible. WSL tests cover Linux VM metrics and services; CPU temperature may be unavailable and NAT does not establish phone LAN connectivity.
+
 ### Install a downloaded build
 
 1. Download the **Windows x64 ZIP** above and extract the entire archive into one folder. Run `DeskPulse.Collector.exe`; no .NET installation is required.
@@ -56,7 +70,7 @@ These screenshots render the Android app's bundled HTML/CSS/JavaScript interface
 
 Keep the PC and phone on a reachable LAN. Preserve the collector's `state/` folder when upgrading. The release includes `SHA256SUMS.txt`; use `Get-FileHash -Algorithm SHA256` to verify either download.
 
-### 1. Build from source
+### 1. Build Windows / Android
 
 Requirements: Windows 10/11 x64, Git, .NET 8 SDK, JDK 17+, Android SDK Platform / Build-tools 35, and Node.js 18+. Python 3.10+ is needed for collector integration tests. Set `ANDROID_HOME` and `JAVA_HOME` to your SDK / JDK, or pass their paths as build script parameters.
 
@@ -138,6 +152,7 @@ Read [AGENTS.md](AGENTS.md), then follow the [agent deployment runbook](docs/AGE
 
 ```powershell
 node --test tests/core.test.cjs tests/i18n.test.cjs tests/stocks.test.cjs
+dotnet run --project tests/Collector.Tests -c Release
 dotnet build collector -c Release
 python tests/collector_integration.py
 ./android/gradlew.bat -p android assembleDebug lintDebug
@@ -149,8 +164,8 @@ Node tests require no device or network. Collector integration tests use an isol
 
 ```text
 android/       Android app and its bundled display interface
-collector/     Windows sensors and HTTPS API
-scripts/       Build, startup, firewall, sensor driver, and sign-in tasks
+collector/     Cross-platform sensors, Platforms/ providers and HTTPS API
+scripts/       Windows tooling; linux/ contains Bash/systemd tooling
 tests/         Logic, collector, and real-device checks
 docs/          Installation, agent deployment, architecture, and screenshots
 licenses/      Original third-party license texts

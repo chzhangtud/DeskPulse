@@ -1,10 +1,11 @@
 # DeskPulse 0.1 architecture
 
-DeskPulse combines a local Windows telemetry service with an immersive Android display. The phone also fetches weather, daily stocks and RSS headlines independently.
+DeskPulse combines a local Windows/Linux telemetry service with an immersive Android display. The phone also fetches weather, daily stocks and RSS headlines independently.
 
 ## Components
 
 - **Windows:** .NET 8 / ASP.NET Core, one-second HTTP polling over pinned HTTPS. A self-contained win-x64 build needs no preinstalled runtime. One sampler serves all clients. HTTP was selected because the 1 Hz payload is small, reconnects are simple, and WebSockets add no required capability for this release.
+- **Linux:** the same .NET host, schema, TLS, enrollment and sampler. `collector/Platforms/` isolates Windows counters/PawnIO from Linux procfs/sysfs. Linux publishes omit LibreHardwareMonitor and its Windows dependencies. Linux CPU/memory/uptime come from procfs; CPU temperature reads only CPU-labelled hwmon/thermal sensors. Process CPU/RSS and gateway-bearing NIC counters use .NET's OS implementations. Local mount parsing excludes pseudo/remote/bind filesystems. Optional per-user systemd startup suppresses pairing strings in the journal. See [Linux operations and WSL limits](LINUX.md).
 - **Android:** Java, Android API 29+, native lifecycle/keystore/networking/system folder picker, and a locally bundled HTML/CSS/canvas display. No third-party Android runtime dependencies, Google Play Services or internet connection is needed for LAN monitoring. Older Android WebViews use the included replaceChildren compatibility helper and flex-gap spacing fallbacks.
 - **Independent content:** direct phone-to-provider HTTPS requests, Open-Meteo weather and one configurable RSS/Atom feed, defaulting to Ars Technica. Weather/news refresh every 15 minutes on a separate bounded executor. Successful private caches carry source/date/failure state. Weather becomes stale at 30 minutes; news at 60 minutes. News parses up to 20 readable HTTPS entries and preserves reading position during routine refresh. The current layout is clock/weather on the left, daily US stocks in the middle and the original news source on the right. The local clock always works.
 - **Daily stocks:** `StockData.java` has an independent two-worker executor, 22-symbol allowlist, explicit `Proxy.NO_PROXY`, normal platform TLS checks, disabled redirects, 8-second connect/read timeouts and a 500KB response cap. Eastmoney daily kline (`klt=101`, `fqt=0`) is primary; Tencent US daily data is fallback, consistently using unadjusted closes. Positive finite prices/calendar dates are validated; incomplete sessions are excluded. Private caches retain source/date/series/capacity per symbol. A completed-session cutoff uses New York 16:30 and skips weekends. Holiday responses retain the actual last session. Same-cutoff/sufficient-capacity reads reuse cache; longer histories are lazy; failures back off an hour. Concurrent shorter requests cannot overwrite larger same-day histories. Native bootstrap supplies cached histories without exposing credentials. No realtime quote polling or collector dependency is added.
@@ -34,13 +35,13 @@ Five seconds without fresh data marks displayed values stale and pauses live tra
 
 | Metric | Provider / limitation |
 | --- | --- |
-| CPU | Windows GetSystemTimes delta across all processors |
-| Memory | GlobalMemoryStatusEx physical used/total, not committed virtual memory |
+| CPU | Windows GetSystemTimes or Linux /proc/stat aggregate deltas; guest counters are not counted twice |
+| Memory | Windows GlobalMemoryStatusEx or Linux MemTotal - MemAvailable; physical used/total |
 | Network | Active physical Ethernet/Wi-Fi interfaces with a gateway; interface names included |
-| Disk capacity | DriveInfo available and total bytes, fixed disks |
-| Processes | Accessible Windows processes, CPU delta normalized to logical processor count; protected/exited processes skipped |
+| Disk capacity | DriveInfo available/total; Windows fixed disks or Linux local mounts, excluding pseudo/remote/bind mounts |
+| Processes | Accessible OS processes, CPU delta normalized to logical processor count; protected/exited processes skipped; PID reuse detected via process start time |
 | GPU | Optional installed NVIDIA nvidia-smi, first reported GPU, every 3 seconds; 2-second process timeout |
-| CPU temperature | LibreHardwareMonitor 0.9.6, CPU only, every 2 seconds; signed PawnIO driver and elevated collector required; readings older than 10 seconds suppressed |
+| CPU temperature | Windows: LibreHardwareMonitor/PawnIO with elevation; Linux: CPU-labelled hwmon/thermal sysfs; every 2 seconds; readings older than 10 seconds suppressed |
 | Fans, per-core counters, disk I/O | Explicitly unavailable in this release |
 | AMD/Intel GPU sensors | Unavailable until a supported provider is added |
 

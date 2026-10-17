@@ -702,10 +702,10 @@ function renderMonitor() {
   const rows = [
     [
       "Uptime",
-      Math.floor(s.uptimeSeconds / 3600) +
+      Number.isFinite(s.uptimeSeconds) ? Math.floor(s.uptimeSeconds / 3600) +
         "h " +
         (Math.floor(s.uptimeSeconds / 60) % 60) +
-        "m",
+        "m" : "Unavailable",
     ],
     ["GPU", g ? g.name : "Unavailable"],
     [

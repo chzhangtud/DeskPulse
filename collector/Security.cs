@@ -28,6 +28,7 @@ public sealed class Security
             var token = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
             hashes.Add(Hash(token));
             File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(hashes));
+            if (OperatingSystem.IsLinux()) File.SetUnixFileMode(path + ".tmp", UnixFileMode.UserRead | UnixFileMode.UserWrite);
             File.Move(path + ".tmp", path, true);
             used = true;
             return token;

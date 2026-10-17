@@ -2,6 +2,14 @@
 
 Deploy from a Windows 10/11 x64 checkout. Paths below are relative to the repository root. Use the user's actual installation paths and LAN address; `192.168.1.20` is an example only. Do not log or publish pairing strings.
 
+## Linux deployment
+
+Use [the Linux runbook](LINUX.md) for a glibc Linux host. Build with `bash scripts/linux/build.sh`; run `bash scripts/linux/start-collector.sh --listen 192.168.1.20` with the real private address. The Android app and pairing protocol are shared. Building requires .NET 8 SDK, Bash and Python 3; published packages need only OS runtime prerequisites. CPU temperature comes from read-only CPU hwmon/thermal interfaces, NVIDIA from the installed driver; do not install PawnIO on Linux.
+
+Run `dotnet run --project tests/Collector.Tests -c Release`, `python3 tests/linux_helpers_test.py` and `DESKPULSE_COLLECTOR=/absolute/path/to/DeskPulse.Collector python3 tests/collector_integration.py`. Validate the tarball with `tests/linux_package_test.py`; run `tests/linux_service_test.py <archive>` when a user systemd manager is available. Install optional sign-in startup with `bash scripts/linux/install-service.sh --listen <private-ip>` only when deployment includes startup. Preserve the XDG state directory on upgrades; user service mode suppresses setup strings in the journal.
+
+WSL metrics describe the Linux VM. WSL NAT does not establish phone LAN connectivity. Use isolated tests without changing Windows routing, WSL networking, firewall profiles, GPU drivers or the existing Windows collector. Report WSL hardware/phone limits explicitly. Follow the steps below for Windows hosts.
+
 ## 1. Discover the environment
 
 ```powershell

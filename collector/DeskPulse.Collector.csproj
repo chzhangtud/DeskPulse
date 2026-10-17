@@ -6,8 +6,17 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Version>0.1.0</Version>
     <ServerGarbageCollection>false</ServerGarbageCollection>
+    <EnableWindowsSensors Condition="'$(EnableWindowsSensors)' == '' and ('$(RuntimeIdentifier)' == 'win-x64' or '$(RuntimeIdentifier)' == 'win-arm64' or ('$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Windows'))))">true</EnableWindowsSensors>
+    <EnableWindowsSensors Condition="'$(EnableWindowsSensors)' == ''">false</EnableWindowsSensors>
+    <DefineConstants Condition="'$(EnableWindowsSensors)' == 'true'">$(DefineConstants);WINDOWS_SENSORS</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(EnableWindowsSensors)' == 'true'">
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(EnableWindowsSensors)' != 'true'">
+    <Compile Remove="Platforms/Windows/CpuTemperature.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="DeskPulse.Collector.Tests" />
   </ItemGroup>
 </Project>

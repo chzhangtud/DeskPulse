@@ -1,4 +1,4 @@
-"""Exercise the real Windows collector, including pairing, TLS and live samples.
+"""Exercise the real Windows/Linux collector, including pairing, TLS and live samples.
 
 Starts an isolated loopback collector. Requires a built collector and Python 3.10+.
 Never consumes the production phone's pairing code or saves its bearer credential.
@@ -7,7 +7,9 @@ import base64
 import hashlib
 import http.client
 import json
+import os
 import pathlib
+import signal
 import socket
 import ssl
 import subprocess
@@ -26,10 +28,20 @@ class CollectorIntegration(unittest.TestCase):
             listener.bind(("127.0.0.1", 0))
             cls.port = listener.getsockname()[1]
         cls.log = open(pathlib.Path(cls.directory.name) / "collector.log", "w")
-        cls.process = subprocess.Popen([
-            "dotnet", str(ROOT / "collector/bin/Release/net8.0/DeskPulse.Collector.dll"),
-            "--listen", "127.0.0.1", "--port", str(cls.port), "--state", cls.directory.name
-        ], stdout=cls.log, stderr=cls.log)
+        target = os.environ.get("DESKPULSE_COLLECTOR", str(ROOT / "collector/bin/Release/net8.0/DeskPulse.Collector.dll"))
+        cls.command = (["dotnet", target] if target.endswith(".dll") else [target]) + [
+            "--listen", "127.0.0.1", "--port", str(cls.port), "--state", cls.directory.name, "--quiet-pairing", "true"
+        ]
+        cls.addClassCleanup(cls.directory.cleanup)
+        cls.addClassCleanup(cls.log.close)
+        cls.addClassCleanup(cls.stop)
+        cls.start()
+
+    @classmethod
+    def start(cls):
+        cls.process = subprocess.Popen(cls.command, stdout=cls.log, stderr=cls.log,
+                                       start_new_session=os.name != "nt",
+                                       creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
         pairing = pathlib.Path(cls.directory.name) / "pairing.txt"
         for _ in range(100):
             if pairing.exists():
@@ -41,18 +53,24 @@ class CollectorIntegration(unittest.TestCase):
                 except (ConnectionError, OSError, ValueError):
                     pass
             time.sleep(0.1)
-        cls.process.terminate()
+        cls.stop()
         raise RuntimeError("Collector did not start")
 
     @classmethod
-    def tearDownClass(cls):
-        # Kill only this isolated test's process tree so nvidia-smi cannot retain its log handle.
-        if cls.process.poll() is None:
-            subprocess.run(["taskkill", "/PID", str(cls.process.pid), "/T", "/F"],
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
-        cls.process.wait(timeout=10)
-        cls.log.close()
-        cls.directory.cleanup()
+    def stop(cls):
+        # Stop only this isolated test's process group/tree, including its sensor child.
+        if not hasattr(cls, "process") or cls.process.poll() is not None:
+            return
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/PID", str(cls.process.pid), "/T", "/F"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+        else:
+            os.killpg(cls.process.pid, signal.SIGTERM)
+        try:
+            cls.process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            if os.name != "nt":
+                os.killpg(cls.process.pid, signal.SIGKILL)
+            cls.process.wait(timeout=5)
 
     @classmethod
     def request(cls, method, path, data=None, token=None):
@@ -92,10 +110,13 @@ class CollectorIntegration(unittest.TestCase):
         temperature = sample["cpuTemperatureC"]
         if temperature is not None:
             self.assertTrue(0 < temperature <= 125)
-            self.assertIn("LibreHardwareMonitor", sample["capabilities"]["cpuTemperature"])
+            self.assertTrue(any(source in sample["capabilities"]["cpuTemperature"] for source in ("LibreHardwareMonitor", "Linux sysfs")))
         else:
             self.assertTrue(sample["capabilities"]["cpuTemperature"])
-        self.assertGreaterEqual(sample["network"]["downloadBytesPerSecond"], 0)
+        if sample["network"]["interfaces"]:
+            self.assertGreaterEqual(sample["network"]["downloadBytesPerSecond"], 0)
+        else:
+            self.assertIsNone(sample["network"]["downloadBytesPerSecond"])
         self.assertTrue(set(sample["network"]["interfaceKinds"]) <= {"Ethernet", "Wi-Fi"})
         cpu_values = [p["cpuPercent"] for p in sample["processes"]]
         ram_values = [p["memoryBytes"] for p in sample["processesByMemory"]]
@@ -103,11 +124,28 @@ class CollectorIntegration(unittest.TestCase):
         self.assertTrue(ram_values)
         self.assertEqual(cpu_values, sorted(cpu_values, reverse=True))
         self.assertEqual(ram_values, sorted(ram_values, reverse=True))
+        self.assertTrue(sample["disks"])
+        self.assertGreater(sample["uptimeSeconds"], 0)
+        self.assertTrue(any(p["totalBytes"] and p["totalBytes"] > 0 for p in sample["disks"]))
+        self.assertIn("Linux" if os.name != "nt" else "Windows", sample["capabilities"]["cpu"])
         time.sleep(1.2)
         _, second = self.request("GET", "/api/v1/sample", token=token)
         self.assertGreater(second["sample"]["sequence"], sample["sequence"])
         stored = pathlib.Path(self.directory.name, "clients.json").read_text()
         self.assertNotIn(token, stored)
+        if os.name != "nt":
+            self.assertEqual(pathlib.Path(self.directory.name).stat().st_mode & 0o777, 0o700)
+            for name in ("pairing.txt", "collector.pfx", "clients.json"):
+                self.assertEqual(pathlib.Path(self.directory.name, name).stat().st_mode & 0o777, 0o600)
+        previous_pin = self.setup["fingerprint"]
+        self.stop()
+        self.start()
+        self.assertEqual(self.setup["fingerprint"], previous_pin)
+        status, result = self.request("GET", "/api/v1/sample", token=token)
+        self.assertEqual(status, 200)
+        self.assertEqual(result["schemaVersion"], 1)
+        self.log.flush()
+        self.assertNotIn("deskpulse:", pathlib.Path(self.directory.name, "collector.log").read_text())
 
 
 if __name__ == "__main__":

@@ -42,6 +42,10 @@ test("status composition translates ages and sensor reasons while retaining numb
     /需要安装签名 PawnIO 驱动/,
   );
   assert.equal(translate("CustomToolMonitor", "zh"), "CustomToolMonitor");
+  assert.match(
+    translate("Unavailable: Linux CPU temperature sensor not exposed or not readable", "zh"),
+    /Linux.*温度.*读取权限/,
+  );
 });
 
 test("validation, appearance and health copy can switch in both directions", () => {
