@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'"
+    />
+    <title>DeskPulse</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="wallpaper"></div>
+    <div id="shade"></div>
+    <svg
+      class="icon-definitions"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <defs>
+        <symbol id="i-pulse" viewBox="0 0 24 24">
+          <path d="M2 12h5l3-8 4 16 3-8h5" />
+        </symbol>
+        <symbol id="i-chip" viewBox="0 0 24 24">
+          <rect x="5" y="5" width="14" height="14" rx="3" />
+          <path d="M9 1v4m6-4v4M9 19v4m6-4v4M1 9h4m-4 6h4m14-6h4m-4 6h4" />
+          <rect x="9" y="9" width="6" height="6" rx="1" />
+        </symbol>
+        <symbol id="i-gpu" viewBox="0 0 24 24">
+          <path d="M3 6h18v12H3zM1 6v14m5-2v3m4-3v3m4-3v3" />
+          <circle cx="14" cy="12" r="3" />
+          <path d="M6 10h2m-2 4h2" />
+        </symbol>
+        <symbol id="i-memory" viewBox="0 0 24 24">
+          <path d="M2 5h20v13H2zM5 18v3m4-3v3m6-3v3m4-3v3" />
+          <path d="M6 9h4v5H6zm8 0h4v5h-4z" />
+        </symbol>
+        <symbol id="i-network" viewBox="0 0 24 24">
+          <path
+            d="M3 8a14 14 0 0 1 18 0M6 12a9 9 0 0 1 12 0m-9 4a4 4 0 0 1 6 0"
+          />
+          <circle cx="12" cy="20" r=".6" />
+        </symbol>
+        <symbol id="i-settings" viewBox="0 0 24 24">
+          <path
+            d="m9 3-1 3-3 1-2 3 2 2v3l2 2 3-1 2 2 3-1 1-3 3-1 2-3-2-2V5l-2-2-3 1-2-2z"
+          />
+          <circle cx="12" cy="10" r="3" />
+        </symbol>
+        <symbol id="i-left" viewBox="0 0 24 24">
+          <path d="m14 6-6 6 6 6" />
+        </symbol>
+        <symbol id="i-right" viewBox="0 0 24 24">
+          <path d="m10 6 6 6-6 6" />
+        </symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24">
+          <path d="m9 3 6 0-1 6 4 4v2H6v-2l4-4-1-6zm3 12v6" />
+        </symbol>
+        <symbol id="i-info" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 11v6m0-10v1" />
+        </symbol>
+        <symbol id="i-close" viewBox="0 0 24 24">
+          <path d="m6 6 12 12M6 18 18 6" />
+        </symbol>
+      </defs>
+    </svg>
+    <main>
+      <header>
+        <h1 class="brand">
+          <svg class="icon brand-icon" aria-hidden="true">
+            <use href="#i-pulse" /></svg
+          >DeskPulse
+        </h1>
+        <div class="statusbar">
+          <span
+            ><b id="connection" class="missing" role="status" aria-live="polite"
+              >Connecting</b
+            ><span id="host">LOCAL WORKSTATION</span></span
+          >
+          <span id="freshness">Waiting for a genuine sample</span>
+        </div>
+        <div class="header-right">
+          <span id="smallClock"></span
+          ><button
+            id="infoToggle"
+            aria-pressed="false"
+            aria-label="Show clock, weather and news"
+          >
+            <svg class="icon" aria-hidden="true"><use href="#i-info" /></svg>
+            <span id="infoToggleLabel">Info</span></button
+          ><button id="settingsButton" aria-label="Open settings">
+            <svg class="icon" aria-hidden="true"><use href="#i-settings" /></svg
+            ><span>Settings</span>
+          </button>
+        </div>
+      </header>
+      <section id="monitor" hidden>
+        <div class="metrics">
+          <article id="cpuCard" class="metric">
+            <h2 class="metric-label">
+              <span class="metric-title"
+                ><svg class="icon" aria-hidden="true">
+                  <use href="#i-chip" /></svg
+                >Processor</span
+              ><span class="metric-state" id="cpuState">Load</span>
+            </h2>
+            <div class="value" id="cpuValue">—</div>
+            <div class="sub" id="cpuSub">Temperature unavailable</div>
+            <canvas
+              id="cpuGraph"
+              role="img"
+              aria-label="Processor utilization over the last 60 seconds"
+            ></canvas>
+            <div class="axis">CPU utilization <span>60 s</span></div>
+          </article>
+          <article id="gpuCard" class="metric">
+            <h2 class="metric-label">
+              <span class="metric-title"
+                ><svg class="icon" aria-hidden="true"><use href="#i-gpu" /></svg
+                >Graphics</span
+              ><span class="metric-state" id="gpuState">Load</span>
+            </h2>
+            <div class="value" id="gpuValue">—</div>
+            <div class="sub" id="gpuSub">Sensor unavailable</div>
+            <canvas
+              id="gpuGraph"
+              role="img"
+              aria-label="Graphics utilization over the last 60 seconds"
+            ></canvas>
+            <div class="axis">GPU utilization <span>60 s</span></div>
+          </article>
+          <article id="memoryCard" class="metric">
+            <h2 class="metric-label">
+              <span class="metric-title"
+                ><svg class="icon" aria-hidden="true">
+                  <use href="#i-memory" /></svg
+                >Memory</span
+              ><span class="metric-state" id="memoryState">Pressure</span>
+            </h2>
+            <div class="value" id="memoryValue">—</div>
+            <div class="sub" id="memorySub">Waiting for sample</div>
+            <canvas
+              id="memoryGraph"
+              role="img"
+              aria-label="Physical memory utilization over the last 60 seconds"
+            ></canvas>
+            <div class="axis">Physical memory <span>60 s</span></div>
+          </article>
+          <article id="networkCard" class="metric">
+            <h2 class="metric-label">
+              <span class="metric-title"
+                ><svg class="icon" aria-hidden="true">
+                  <use href="#i-network" /></svg
+                >Network</span
+              ><span class="metric-state">Traffic</span>
+            </h2>
+            <div class="net-value">
+              <small>↓</small><span id="downValue">—</span>
+            </div>
+            <div class="net-up">↑ <span id="upValue">—</span></div>
+            <div class="sub" id="networkSub">Physical interfaces</div>
+            <canvas
+              id="networkGraph"
+              role="img"
+              aria-label="Download as a solid line and upload as a dashed line over 60 seconds"
+            ></canvas>
+            <div class="axis">↓ Solid / ↑ Dashed <span>60 s</span></div>
+          </article>
+        </div>
+        <div class="details">
+          <section class="process-panel">
+            <h2>
+              Active processes
+              <span class="process-sort" role="group" aria-label="Process order"
+                ><button
+                  id="processCpuSort"
+                  aria-pressed="true"
+                  aria-label="Sort processes by CPU, descending"
+                >
+                  CPU ↓</button
+                ><button
+                  id="processRamSort"
+                  aria-pressed="false"
+                  aria-label="Sort processes by memory, descending"
+                >
+                  RAM ↓
+                </button></span
+              >
+            </h2>
+            <div id="processes"></div>
+          </section>
+          <section class="storage-panel">
+            <h2>Storage <span>Free / total</span></h2>
+            <div id="disks"></div>
+          </section>
+          <section class="machine-panel">
+            <h2>System <span>Hardware</span></h2>
+            <div id="machine"></div>
+          </section>
+        </div>
+      </section>
+      <section id="information">
+        <div class="desk-panel">
+          <div class="offline-clock">
+            <div id="bigClock">--:--</div>
+            <div id="date"></div>
+            <p id="offlineNotice">
+              Pair your computer to begin monitoring.<br />The clock, weather
+              and news work independently.
+            </p>
+          </div>
+          <div class="weather-panel">
+            <h2>Weather <span id="cityLabel"></span></h2>
+            <div class="weather-value" id="weatherValue">—</div>
+            <div id="weatherDetail">No cached weather yet</div>
+            <div id="forecast"></div>
+            <small id="weatherSource">Open-Meteo · awaiting first update</small>
+          </div>
+        </div>
+        <section class="stock-panel" aria-label="Daily US stocks">
+          <div class="stock-heading">
+            <h2>Stocks</h2>
+            <label class="stock-range-label">
+              <span class="sr-only">Stock categories</span>
+              <select id="stockCategory">
+                <option value="chips">Chips</option>
+                <option value="tech">Tech</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+            <label class="stock-range-label">
+              <span class="sr-only">Daily history range</span>
+              <select id="stockRange">
+                <option value="5d">5 trading days</option>
+                <option value="10d">10 trading days</option>
+                <option value="1m">1 month</option>
+                <option value="3m">3 months</option>
+                <option value="6m">6 months</option>
+              </select>
+            </label>
+          </div>
+          <small id="stockPeriod">Daily close · USD</small>
+          <div class="news-scroll">
+            <div id="stocks" class="news-list stock-list" tabindex="0" role="region" aria-label="Stock daily closes"></div>
+            <div class="news-scrollbar" aria-hidden="true"><span></span></div>
+          </div>
+          <small id="stockStatus" role="status">Awaiting daily data</small>
+        </section>
+        <div class="news-panel">
+          <h2><span id="newsSource"></span></h2>
+          <small id="newsTime"></small>
+          <div class="news-scroll">
+            <div id="news" class="news-list" tabindex="0" role="region" aria-label="First news source">
+              No cached headlines yet. Internet access is required for the first update.
+            </div>
+            <div class="news-scrollbar" aria-hidden="true"><span></span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="toast" role="status" hidden></div>
+    <dialog id="settings" aria-labelledby="settingsTitle">
+      <form id="settingsForm" novalidate>
+        <div class="dialog-head">
+          <h2 id="settingsTitle">Settings</h2>
+          <button type="button" id="closeSettings" aria-label="Close settings">
+            <svg class="icon" aria-hidden="true"><use href="#i-close" /></svg>
+          </button>
+        </div>
+        <div class="settings-layout">
+          <nav class="settings-nav" aria-label="Settings sections">
+            <button
+              type="button"
+              data-section="settingsConnection"
+              class="selected"
+              aria-current="true"
+            >
+              Connection<small>Your computer</small></button
+            ><button type="button" data-section="settingsAppearance">
+              Appearance<small>Theme &amp; wallpaper</small></button
+            ><button type="button" data-section="settingsInformation">
+              Information<small>Weather &amp; news</small></button
+            ><button type="button" data-section="settingsHealth">
+              Health rules<small>Limits &amp; alerts</small>
+            </button>
+          </nav>
+          <div class="settings-body">
+            <section id="settingsConnection">
+              <h3>Connect your computer</h3>
+              <p>
+                Run the Windows collector. Import its <b>pairing.txt</b> or
+                paste the setup code below. It contains the collector's identity
+                and a single-use pairing secret. Transfer it privately.
+              </p>
+              <textarea
+                id="setupCode"
+                placeholder="deskpulse:…"
+                rows="2"
+                spellcheck="false"
+                autocapitalize="off"
+              ></textarea>
+              <div class="button-row">
+                <button type="button" id="importSetup">Import setup file</button
+                ><button type="button" id="pairButton" class="primary">
+                  Pair computer</button
+                ><span id="pairStatus"></span>
+              </div>
+              <label
+                >Host address (after pairing)<input
+                  id="hostInput"
+                  placeholder="192.168.1.100"
+                  autocapitalize="off"
+                  spellcheck="false" /></label
+              ><small id="fingerprint"></small>
+            </section>
+            <section id="settingsAppearance">
+              <h3>Appearance &amp; wallpaper</h3>
+              <div
+                class="wallpaper-controls"
+                role="group"
+                aria-label="Wallpaper controls"
+              >
+                <button
+                  type="button"
+                  id="previous"
+                  aria-label="Previous wallpaper"
+                >
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-left" />
+                  </svg>
+                </button>
+                <span id="wallpaperStatus">Built-in background</span>
+                <button type="button" id="next" aria-label="Next wallpaper">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-right" />
+                  </svg>
+                </button>
+                <button type="button" id="pin" aria-pressed="false">
+                  <svg class="icon" aria-hidden="true">
+                    <use href="#i-pin" /></svg
+                  ><span>Pin current</span>
+                </button>
+              </div>
+              <div class="fields">
+                <label
+                  >Language<select id="language">
+                    <option value="en">English</option>
+                    <option value="zh">Chinese (Simplified)</option>
+                  </select></label
+                >
+                <label
+                  >Theme<select id="theme">
+                    <option value="scheduled">Scheduled</option>
+                    <option value="night">Fixed night</option>
+                    <option value="day">Fixed day</option>
+                  </select></label
+                ><label
+                  >Day starts (24h)<input
+                    type="text"
+                    id="dayStart"
+                    placeholder="HH:MM"
+                    maxlength="5"
+                    autocomplete="off"
+                    required /></label
+                ><label
+                  >Night starts (24h)<input
+                    type="text"
+                    id="nightStart"
+                    placeholder="HH:MM"
+                    maxlength="5"
+                    autocomplete="off"
+                    required /></label
+                ><label
+                  >Backing opacity %<input
+                    type="number"
+                    id="opacity"
+                    min="0"
+                    max="100" /></label
+                ><label
+                  >Image dimming %<input
+                    type="number"
+                    id="dim"
+                    min="0"
+                    max="100" /></label
+                ><label
+                  >Image fit<select id="fit">
+                    <option value="cover">cover</option>
+                    <option value="contain">contain</option>
+                  </select></label
+                ><label
+                  >Focal position %<input
+                    type="number"
+                    id="focus"
+                    min="0"
+                    max="100" /></label
+                ><label
+                  >Rotation interval / sec<input
+                    type="number"
+                    id="rotation"
+                    min="10"
+                    max="86400"
+                /></label>
+              </div>
+              <div class="button-row">
+                <button type="button" id="folderButton">
+                  Choose phone folder</button
+                ><button type="button" id="resetWallpaper">
+                  Use built-in background</button
+                ><label class="check"
+                  ><input type="checkbox" id="shuffle" /> Shuffle</label
+                >
+              </div>
+              <p>
+                JPEG / PNG / WebP in the selected folder (no subfolders, up to
+                2,000 images). Invalid images are skipped. Decoding is bounded
+                to 2048 px. Folder access stays on the phone.
+              </p>
+            </section>
+            <section id="settingsInformation">
+              <h3>Independent information</h3>
+              <div class="fields">
+                <label
+                  >Weather city<input
+                    id="city"
+                    maxlength="100"
+                    required /></label
+                ><label class="wide"
+                  >RSS / Atom feed (HTTPS)<input
+                    type="url"
+                    id="feed"
+                    required
+                /></label>
+              </div>
+              <p>
+                Open-Meteo weather refreshes every 15 minutes; headlines every
+                15 minutes. Cached content is marked with its update time.
+                Open-Meteo data: CC BY 4.0. Headlines link to the original
+                publisher.
+              </p>
+            </section>
+            <section id="settingsHealth">
+              <h3>Health rules</h3>
+              <p id="cpuSensorStatus" role="status">
+                Waiting for CPU sensor status
+              </p>
+              <p>
+                For CPU temperature, run Install-CpuSensor.ps1 once on Windows
+                as administrator, then start the collector as administrator.
+                Monitoring continues when the optional sensor is unavailable.
+              </p>
+              <p>
+                Load and traffic are neutral measurements. Warnings apply to
+                sustained memory pressure, disk free space and CPU/GPU
+                temperature. Temperature defaults are provisional; adjust for
+                your hardware.
+              </p>
+              <div class="fields">
+                <label
+                  >CPU warning °C<input type="number" id="cpuWarning"
+                /></label>
+                <label
+                  >CPU critical °C<input type="number" id="cpuCritical"
+                /></label>
+                <label
+                  >Memory warning %<input
+                    type="number"
+                    id="memoryWarning" /></label
+                ><label
+                  >Memory critical %<input
+                    type="number"
+                    id="memoryCritical" /></label
+                ><label
+                  >Disk free warning %<input
+                    type="number"
+                    id="diskWarning" /></label
+                ><label
+                  >Disk free critical %<input
+                    type="number"
+                    id="diskCritical" /></label
+                ><label
+                  >GPU warning °C<input type="number" id="gpuWarning" /></label
+                ><label
+                  >GPU critical °C<input
+                    type="number"
+                    id="gpuCritical" /></label
+                ><label
+                  >Sustained duration / sec<input
+                    type="number"
+                    id="sustain" /></label
+                ><label
+                  >Recovery margin / points or °C<input
+                    type="number"
+                    id="hysteresis"
+                /></label>
+              </div>
+            </section>
+            <section>
+              <h3>Connection help</h3>
+              <p>
+                Use the computer's LAN IPv4 address. Both devices need a working
+                LAN route; guest Wi-Fi isolation may block access. Allow the
+                collector's TCP port through Windows Firewall for the intended
+                LAN only. A timeout means the host cannot be reached; it does
+                not prove the computer is powered off.
+              </p>
+            </section>
+          </div>
+        </div>
+        <div class="dialog-bottom">
+          <span id="settingsError" role="alert"></span
+          ><button class="primary" type="submit">Save changes</button>
+        </div>
+      </form>
+    </dialog>
+    <script src="core.js"></script>
+    <script src="i18n.js"></script>
+    <script src="overflow.js"></script>
+    <script src="stocks.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

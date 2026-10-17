@@ -1,0 +1,37 @@
+.gradle/
+**/build/
+**/bin/
+**/obj/
+local.properties
+.idea/
+*.iml
+artifacts/
+.local/
+*.log
+node_modules/
+*.user
+**/pairing.txt
+**/state/
+*.pfx
+*.jks
+*.keystore
+**/__pycache__/
+
+# Private planning, session notes and local validation evidence
+/PLAN.md
+/docs/plans/
+/docs/superpowers/
+/docs/UI_STYLE.md
+/docs/VALIDATION.md
+/AGENTS.local.md
+
+# Local credentials and exports (public examples must use *.example)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+**/clients.json
+**/clients.json.tmp
+*.bundle
