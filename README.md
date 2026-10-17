@@ -2,48 +2,48 @@
 
 # ⚡ DeskPulse
 
-**让闲置 Android 手机，成为桌面上的电脑监控屏。**
+**Turn a spare Android phone into a dedicated PC monitor and desk display.**
 
-A landscape PC monitor and independent desk display for Android.
+**English** | [简体中文](README.zh-CN.md)
 
 [![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](android/)
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
 [![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=flat-square&logo=dotnet&logoColor=white)](collector/DeskPulse.Collector.csproj)
-[![Languages](https://img.shields.io/badge/UI-English%20%2F%20简体中文-62D8D2?style=flat-square)](#配置)
+[![Languages](https://img.shields.io/badge/UI-English%20%2F%20简体中文-62D8D2?style=flat-square)](#configuration)
 
-[🚀 快速开始](#快速开始) · [🖼️ 界面预览](#界面预览) · [⚙️ 配置](#配置) · [🤖 Agent 部署](docs/AGENT_DEPLOY.md)
+[🚀 Quick start](#quick-start) · [🖼️ Screenshots](#screenshots) · [⚙️ Configuration](#configuration) · [🤖 Agent deployment](docs/AGENT_DEPLOY.md)
 
 </div>
 
-![DeskPulse 监控界面](docs/images/monitor.png)
+![DeskPulse monitoring dashboard](docs/images/monitor.png)
 
-## 能做什么
+## Features
 
-- **实时监控**：CPU、NVIDIA GPU、物理内存、网络速率、磁盘容量，以及独立的 CPU / RAM 进程排行。1 Hz 采样、60 秒曲线。
-- **独立信息屏**：电脑离线后显示时钟、天气、每日美股走势与 RSS 新闻；连接恢复后自动回到监控。
-- **适合常驻桌面**：横屏沉浸显示、深浅主题与定时切换、本地壁纸轮播、英语 / 简体中文。
-- **局域网配对**：固定证书的 HTTPS、十分钟内单次有效的配对码、Android Keystore 加密保存凭据。
-- **可选温度与自启动**：签名驱动支持 CPU 温度；Windows 登录后可隐藏启动并在进程退出后自动恢复。
+- **Live monitoring:** CPU, NVIDIA GPU, physical memory, network rates, disk capacity, and separate CPU / RAM process rankings. One-second sampling with 60-second charts.
+- **Independent information display:** clock, weather, daily US stock charts, and RSS headlines when the PC is offline. Monitoring resumes automatically when the connection returns.
+- **Made for the desk:** immersive landscape layout, light and dark themes, scheduled theme changes, local wallpaper rotation, and English / Simplified Chinese support.
+- **Private LAN pairing:** certificate-pinned HTTPS, single-use setup codes valid for ten minutes, and credentials encrypted with Android Keystore.
+- **Optional temperature and startup support:** a signed driver enables CPU temperature readings; a Windows sign-in task can start the collector hidden and recover after a process exit.
 
-不支持的传感器明确显示不可用。CPU 温度需要额外安装 PawnIO 并以管理员权限运行采集器；GPU 传感器目前支持 NVIDIA。
+Unsupported sensors display unavailable. CPU temperature requires PawnIO and an elevated collector. GPU sensors currently support NVIDIA.
 
-## 界面预览
+## Screenshots
 
-### 离线也能用的信息屏
+### An information display that works without the PC
 
-![时钟、天气、股票与新闻](docs/images/information.png)
+![Clock, weather, stocks, and headlines](docs/images/information.png)
 
-### 主题、语言与壁纸设置
+### Themes, language, and wallpapers
 
-![外观设置](docs/images/settings.png)
+![Appearance settings](docs/images/settings.png)
 
-展示图使用 Android 应用自带的 HTML/CSS/JavaScript 界面，在相同横屏比例下渲染。主机、硬件、进程、行情、天气和新闻均为公开示例数据，不代表真实设备或实时行情。
+These screenshots render the Android app's bundled HTML/CSS/JavaScript interface at the same landscape aspect ratio. Host, hardware, process, stock, weather, and headline values are example data, not a real device or live market data.
 
-## 快速开始
+## Quick start
 
-### 1. 从源码构建
+### 1. Build from source
 
-需要 Windows 10/11 x64、Git、.NET 8 SDK、JDK 17+、Android SDK Platform / Build-tools 35、Node.js 18+。Python 3.10+ 用于采集器集成测试。将 `ANDROID_HOME` 和 `JAVA_HOME` 指向本机 SDK / JDK，或通过构建脚本参数传入。
+Requirements: Windows 10/11 x64, Git, .NET 8 SDK, JDK 17+, Android SDK Platform / Build-tools 35, and Node.js 18+. Python 3.10+ is needed for collector integration tests. Set `ANDROID_HOME` and `JAVA_HOME` to your SDK / JDK, or pass their paths as build script parameters.
 
 ```powershell
 git clone git@github.com:chzhangtud/DeskPulse.git
@@ -51,75 +51,75 @@ cd DeskPulse
 ./scripts/Build.ps1
 ```
 
-构建生成以下本地文件；仓库不附带预构建安装包：
+The build creates these local outputs. Prebuilt installers are not included in the repository.
 
-| 输出 | 用途 |
+| Output | Purpose |
 | --- | --- |
-| `artifacts/android/DeskPulse-0.1.0.apk` | 安装到 Android 10+ 手机 |
-| `artifacts/collector/` | 完整的 Windows 采集器目录 |
-| `artifacts/DeskPulse-0.1.0-windows-x64.zip` | Windows 分发包，不包含配对状态 |
+| `artifacts/android/DeskPulse-0.1.0.apk` | Install on an Android 10+ phone |
+| `artifacts/collector/` | Complete Windows collector directory |
+| `artifacts/DeskPulse-0.1.0-windows-x64.zip` | Windows distribution without private pairing state |
 
-当前脚本生成开发签名 APK；公开分发正式 APK 前需配置自己的发布签名。Windows 采集器为自包含构建，运行时无需另装 .NET。
+The script produces a development-signed APK. Configure your own release signing identity before distributing a production APK. The Windows collector is self-contained and needs no separately installed .NET runtime.
 
-### 2. 启动采集器并允许局域网连接
+### 2. Start the collector and allow LAN access
 
-普通 PowerShell：
+In a regular PowerShell window:
 
 ```powershell
 ./scripts/Start-Collector.ps1
 ```
 
-采集器会打印监听地址。管理员 PowerShell 中设置防火墙规则，下面的地址仅为示例，请替换为打印出的本机局域网地址：
+The collector prints its listening address. In an administrator PowerShell window, configure the scoped firewall rule below. Replace the example address with the actual LAN address printed by the collector.
 
 ```powershell
 ./scripts/Allow-Lan.ps1 -Program "$PWD/artifacts/collector/DeskPulse.Collector.exe" -LocalAddress 192.168.1.20
 ```
 
-电脑与手机需要能够在局域网内互通。不要为此服务配置公网端口转发。
+The PC and phone must be able to reach each other on the LAN. Do not configure public port forwarding for this service.
 
-### 3. 安装 Android 应用并配对
+### 3. Install the Android app and pair
 
-将 APK 传到手机安装，或使用已授权的 USB 调试连接：
+Transfer the APK to the phone and install it, or use an authorized USB debugging connection:
 
 ```powershell
 adb install -r artifacts/android/DeskPulse-0.1.0.apk
 adb shell am start -W -n io.deskpulse.app/.MainActivity
 ```
 
-私下将 `artifacts/collector/state/pairing.txt` 传到手机，在 **Settings → Connection → Import setup file** 导入，再点击 **Pair computer**。也可粘贴配对字符串。配对码启动后十分钟失效且只能使用一次；已配对手机在重启后仍可连接。
+Privately transfer `artifacts/collector/state/pairing.txt` to the phone. Open **Settings → Connection → Import setup file**, import the file, and tap **Pair computer**. You can also paste its setup string. The code expires ten minutes after collector startup and works once. Existing paired phones retain access across restarts.
 
-详细操作、登录自启动、CPU 温度和升级步骤见 [安装指南](docs/INSTALL.md)。
+See the [installation guide](docs/INSTALL.md) for sign-in startup, CPU temperature, upgrades, and troubleshooting.
 
-## 配置
+## Configuration
 
-应用内 **Settings** 修改显示配置，无需编辑源码。
+Change display settings in the app's **Settings** panel without editing source files.
 
-| 位置 | 可配置项 / 默认值 |
+| Section | Options / defaults |
 | --- | --- |
-| Connection | 导入配对码、修改采集器地址 |
-| Appearance | English / 简体中文；默认深色；定时模式默认 07:00 / 19:00 |
-| Wallpaper | 本地文件夹、轮播、固定当前图片、cover / contain；默认五分钟轮换 |
-| Appearance | 背板透明度 86%，图片压暗 30% |
-| Information | 天气城市默认为示例城市 London；RSS 默认为 Ars Technica，可修改 |
-| Stocks | 半导体 / 科技 / 其他；默认半导体、10 个交易日；支持 5 日与 1/3/6 月 |
-| Health rules | 内存 85/95%；CPU 温度 85/95°C；GPU 温度 80/88°C；磁盘剩余 15/5% |
-| Active processes | CPU / RAM 分别选取占用最高的五个进程 |
+| Connection | Import a setup code or change the collector address |
+| Appearance | English / Simplified Chinese; dark theme by default; scheduled boundaries at 07:00 / 19:00 |
+| Wallpaper | Local folder, rotation, pinning, cover / contain; five-minute rotation by default |
+| Appearance | Backing opacity 86%, image dimming 30% |
+| Information | London as the example weather city; configurable Ars Technica RSS feed |
+| Stocks | Semiconductors / Tech / Other; defaults to semiconductors and 10 trading days; also supports 5 days and 1/3/6 months |
+| Health rules | Memory 85/95%; CPU temperature 85/95°C; GPU temperature 80/88°C; disk free space 15/5% |
+| Active processes | Top five processes ranked independently by CPU or RAM |
 
-采集器可指定地址和端口：
+To select the collector address and port explicitly:
 
 ```powershell
 ./scripts/Start-Collector.ps1 -ListenAddress 192.168.1.20 -Port 9443
 ```
 
-也可直接运行 EXE，使用 `--state` 指向自选的私有状态目录。手机里的端口来自配对码；修改端口后需导入更新后的配对码，并更新防火墙规则。
+You can also run the EXE directly and use `--state` to select a private state directory. The phone gets the port from the setup code. After changing it, import an updated setup code and update the firewall rule.
 
-天气与新闻由手机直接获取，每 15 分钟刷新；股票为已完成交易日的日线收盘数据，保留来源和日期。没有互联网时继续显示成功缓存，首次无缓存时显示不可用。行情百分比对应所选周期，使用未复权价格且不含分红。
+Weather and news refresh directly from the phone every 15 minutes. Stocks show daily closes from completed sessions, with source and session date. Successful caches remain available without internet access; a fresh installation without a cache displays unavailable. Stock percentages follow the selected period and use unadjusted prices excluding dividends.
 
-## 给 Agent 的部署入口
+## Agent deployment
 
-读取 [AGENTS.md](AGENTS.md)，然后执行 [Agent 部署步骤](docs/AGENT_DEPLOY.md)：环境检查 → 构建 → 启动 / 防火墙 → 手机安装与私密配对 → 验证。文档也包含保留配对状态的升级流程和验收条件。
+Read [AGENTS.md](AGENTS.md), then follow the [agent deployment runbook](docs/AGENT_DEPLOY.md): check the environment → build → configure startup / firewall → install and pair privately → verify. The runbook includes acceptance criteria and an upgrade process that preserves pairing state.
 
-## 开发与验证
+## Development and verification
 
 ```powershell
 node --test tests/core.test.cjs tests/i18n.test.cjs tests/stocks.test.cjs
@@ -128,21 +128,21 @@ python tests/collector_integration.py
 ./android/gradlew.bat -p android assembleDebug lintDebug
 ```
 
-Node 测试不需要设备或网络。采集器集成测试使用独立的临时 loopback 实例。需要真实手机的网络中断测试会切换 Wi-Fi、重启测试采集器，请先阅读 [安装指南中的测试说明](docs/INSTALL.md#测试)。
+Node tests require no device or network. Collector integration tests use an isolated temporary loopback instance. Real-device outage tests toggle phone Wi-Fi and restart the test collector; read the [test instructions](docs/INSTALL.md#tests) first.
 
-## 项目结构
+## Project structure
 
 ```text
-android/       Android 应用与打包在 APK 内的界面
-collector/     Windows 传感器与 HTTPS API
-scripts/       构建、启动、防火墙、温度驱动与登录自启动
-tests/        逻辑、采集器和真机验证脚本
-docs/         安装、Agent 部署、架构及公开展示图
-licenses/     第三方许可原文
+android/       Android app and its bundled display interface
+collector/     Windows sensors and HTTPS API
+scripts/       Build, startup, firewall, sensor driver, and sign-in tasks
+tests/         Logic, collector, and real-device checks
+docs/          Installation, agent deployment, architecture, and screenshots
+licenses/      Original third-party license texts
 ```
 
-## 隐私与依赖
+## Privacy and dependencies
 
-配对码、客户端状态、证书、日志、构建产物及内部计划均不纳入 Git。不要将 `state/`、控制台中的配对字符串或含真实主机信息的截图附到公开 Issue。`/health` 会向局域网请求方返回机器名；遥测样本还包含硬件、进程和网卡信息。
+Pairing codes, client state, certificates, logs, build outputs, and internal plans are excluded from Git. Keep `state/`, setup strings printed in the console, and screenshots containing real host information out of public issues. The `/health` endpoint returns the machine name to LAN callers; telemetry also includes hardware, process, and network adapter information.
 
-Android 无第三方运行库依赖。Windows 使用 LibreHardwareMonitor；可选驱动、天气、新闻与行情来源见 [第三方声明](THIRD_PARTY_NOTICES.md)。第三方许可仅适用于相应组件，具体实现与信任边界见 [架构说明](docs/ARCHITECTURE.md)。
+Android has no third-party runtime library dependencies. Windows uses LibreHardwareMonitor. See [third-party notices](THIRD_PARTY_NOTICES.md) for optional drivers and weather, news, and market data sources. Third-party licenses apply to their respective components. See the [architecture guide](docs/ARCHITECTURE.md) for implementation details and trust boundaries.
