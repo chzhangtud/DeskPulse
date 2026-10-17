@@ -12,7 +12,8 @@ try {
     }
     if ($AndroidSdk) { $env:ANDROID_HOME = $AndroidSdk }
     if ($JavaHome) { $env:JAVA_HOME = $JavaHome }
-    dotnet publish collector -c Release -r win-x64 --self-contained true -o artifacts\collector
+    # Public binaries must not embed local source/PDB paths.
+    dotnet publish collector -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o artifacts\collector
     if ($LASTEXITCODE -ne 0) { throw 'Collector build failed' }
     & android\gradlew.bat -p android assembleDebug lintDebug
     if ($LASTEXITCODE -ne 0) { throw 'Android build or lint failed' }
@@ -37,7 +38,7 @@ try {
     }
     & scripts\Copy-PackageNotices.ps1 -Destination artifacts\collector\licenses -PackageRoot $packageRoot
     # Package only published files, never the running installation's private state directory.
-    $distributionFiles = Get-ChildItem -LiteralPath artifacts\collector -File | Select-Object -ExpandProperty FullName
+    $distributionFiles = Get-ChildItem -LiteralPath artifacts\collector -File | Where-Object { $_.Extension -ne '.pdb' } | Select-Object -ExpandProperty FullName
     $distributionFiles += (Resolve-Path -LiteralPath artifacts\collector\licenses).Path
     Compress-Archive -LiteralPath $distributionFiles -DestinationPath artifacts\DeskPulse-0.1.0-windows-x64.zip -Force
     Write-Host 'Outputs: artifacts/collector and artifacts/android/DeskPulse-0.1.0.apk'

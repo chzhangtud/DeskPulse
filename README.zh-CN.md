@@ -8,6 +8,11 @@ A landscape PC monitor and independent desk display for Android.
 
 [English](README.md) | **简体中文**
 
+[![下载 Android APK](https://img.shields.io/badge/下载-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.1.0/DeskPulse-0.1.0.apk)
+[![下载 Windows x64](https://img.shields.io/badge/下载-Windows_x64_ZIP-0078D4?style=for-the-badge)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.1.0/DeskPulse-0.1.0-windows-x64.zip)
+
+[v0.1.0 预览版 · 发布说明与 SHA-256 校验文件](https://github.com/chzhangtud/DeskPulse/releases/tag/v0.1.0)
+
 [![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](android/)
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
 [![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=flat-square&logo=dotnet&logoColor=white)](collector/DeskPulse.Collector.csproj)
@@ -43,6 +48,15 @@ A landscape PC monitor and independent desk display for Android.
 
 ## 快速开始
 
+### 直接下载安装
+
+1. 点击上方 **Windows x64 ZIP**，完整解压到同一目录，运行 `DeskPulse.Collector.exe`，无需另装 .NET。
+2. 在该目录打开管理员 PowerShell，运行 `./Allow-Lan.ps1 -Program "$PWD/DeskPulse.Collector.exe" -LocalAddress 192.168.1.20`，将示例地址替换为采集器打印的本机局域网地址。
+3. 点击上方 **Android APK**，安装到 Android 10+ 手机。本预览版使用开发签名证书。
+4. 私下将采集器的 `state/pairing.txt` 传到手机，在 **Settings → Connection → Import setup file** 中导入，再点击 **Pair computer**。请在采集器启动后十分钟内完成配对。
+
+电脑与手机需要在局域网内互通。升级时保留采集器的 `state/` 文件夹。Release 附有 `SHA256SUMS.txt`，可用 `Get-FileHash -Algorithm SHA256` 校验下载文件。
+
 ### 1. 从源码构建
 
 需要 Windows 10/11 x64、Git、.NET 8 SDK、JDK 17+、Android SDK Platform / Build-tools 35、Node.js 18+。Python 3.10+ 用于采集器集成测试。将 `ANDROID_HOME` 和 `JAVA_HOME` 指向本机 SDK / JDK，或通过构建脚本参数传入。
@@ -53,7 +67,7 @@ cd DeskPulse
 ./scripts/Build.ps1
 ```
 
-构建生成以下本地文件；仓库不附带预构建安装包：
+无需构建工具即可使用上方 Release 安装包。自行从源码构建时，会生成以下本地文件：
 
 | 输出 | 用途 |
 | --- | --- |
