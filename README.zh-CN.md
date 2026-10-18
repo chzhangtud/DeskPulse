@@ -8,10 +8,12 @@ A landscape PC monitor and independent desk display for Android.
 
 [English](README.md) | **简体中文**
 
-[![下载 Android APK](https://img.shields.io/badge/下载-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.1.0/DeskPulse-0.1.0.apk)
-[![下载 Windows x64](https://img.shields.io/badge/下载-Windows_x64_ZIP-0078D4?style=for-the-badge)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.1.0/DeskPulse-0.1.0-windows-x64.zip)
+[![下载 Android APK](https://img.shields.io/badge/下载-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.2.0/DeskPulse-0.2.0.apk)
+[![下载 Windows x64](https://img.shields.io/badge/下载-Windows_x64_ZIP-0078D4?style=for-the-badge)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.2.0/DeskPulse-0.2.0-windows-x64.zip)
+[![下载 Linux x64](https://img.shields.io/badge/下载-Linux_x64_tar.gz-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.2.0/DeskPulse-0.2.0-linux-x64.tar.gz)
+[![下载 Linux arm64](https://img.shields.io/badge/下载-Linux_arm64_tar.gz-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.2.0/DeskPulse-0.2.0-linux-arm64.tar.gz)
 
-[v0.1.0 预览版 · 发布说明与 SHA-256 校验文件](https://github.com/chzhangtud/DeskPulse/releases/tag/v0.1.0)
+[v0.2.0 预览版 · 发布说明与 SHA-256 校验文件](https://github.com/chzhangtud/DeskPulse/releases/tag/v0.2.0)
 
 [![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](android/)
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
@@ -50,20 +52,22 @@ A landscape PC monitor and independent desk display for Android.
 
 ## 快速开始
 
-### Linux（从当前源码构建）
+### Linux（下载安装包）
 
-需要 glibc Linux、.NET 8 SDK、Bash 和 Python 3。构建结果包含 .NET 运行时。
+点击上方 **Linux x64** 或 **Linux arm64** 下载按钮；用 `uname -m` 匹配 `x86_64` 或 `aarch64`。需要 glibc Linux 和系统运行库，无需另装 .NET SDK；不支持 Alpine/musl。
 
 ```bash
-bash scripts/linux/build.sh
-bash scripts/linux/start-collector.sh --listen 192.168.1.20 --port 9443
+mkdir -p "$HOME/Applications/DeskPulse-0.2.0"
+tar -xzf DeskPulse-0.2.0-linux-x64.tar.gz -C "$HOME/Applications/DeskPulse-0.2.0"
+cd "$HOME/Applications/DeskPulse-0.2.0"
+./start-collector.sh --listen 192.168.1.20 --port 9443
 ```
 
-将示例地址换成本机局域网地址，私下将 `artifacts/linux-x64/state/pairing.txt` 导入手机配对。ARM64 主机使用对应的 `linux-arm64` 目录。详见 [Linux 安装、温度、局域网防火墙和 systemd 指南](docs/LINUX.md)。
+ARM64 请换成 `linux-arm64` 文件名；将示例地址换成本机局域网地址。安装 Android APK，私下导入 `state/pairing.txt` 后配对。Release 的 `SHA256SUMS.txt` 提供校验值。可选 Python 3 辅助脚本支持 UFW/firewalld 和用户 systemd 自启动，详见 [Linux 安装、依赖、升级和故障排查](docs/LINUX.zh-CN.md)。
 
-现有 v0.1.0 下载按钮仍为此前发布的 Windows/Android 预览版；Linux 请从当前源码构建，原 Android APK 可继续使用。WSL 测试验证 Linux 虚拟机内的指标和服务；CPU 温度可能不暴露，NAT 模式下手机也不能直接访问 WSL 地址。
+Linux x64 已在 WSL 中运行测试；ARM64 已交叉构建并检查包结构，尚未实机运行。WSL 指标属于 Linux 虚拟机，CPU 温度可能不可用；NAT 测试不代表手机可从局域网访问。源码构建使用 `bash scripts/linux/build.sh`。
 
-### 直接下载安装
+### Windows / Android 下载安装
 
 1. 点击上方 **Windows x64 ZIP**，完整解压到同一目录，运行 `DeskPulse.Collector.exe`，无需另装 .NET。
 2. 在该目录打开管理员 PowerShell，运行 `./Allow-Lan.ps1 -Program "$PWD/DeskPulse.Collector.exe" -LocalAddress 192.168.1.20`，将示例地址替换为采集器打印的本机局域网地址。
@@ -86,9 +90,9 @@ cd DeskPulse
 
 | 输出 | 用途 |
 | --- | --- |
-| `artifacts/android/DeskPulse-0.1.0.apk` | 安装到 Android 10+ 手机 |
+| `artifacts/android/DeskPulse-0.2.0.apk` | 安装到 Android 10+ 手机 |
 | `artifacts/collector/` | 完整的 Windows 采集器目录 |
-| `artifacts/DeskPulse-0.1.0-windows-x64.zip` | Windows 分发包，不包含配对状态 |
+| `artifacts/DeskPulse-0.2.0-windows-x64.zip` | Windows 分发包，不包含配对状态 |
 
 当前脚本生成开发签名 APK；公开分发正式 APK 前需配置自己的发布签名。Windows 采集器为自包含构建，运行时无需另装 .NET。
 
@@ -113,7 +117,7 @@ cd DeskPulse
 将 APK 传到手机安装，或使用已授权的 USB 调试连接：
 
 ```powershell
-adb install -r artifacts/android/DeskPulse-0.1.0.apk
+adb install -r artifacts/android/DeskPulse-0.2.0.apk
 adb shell am start -W -n io.deskpulse.app/.MainActivity
 ```
 

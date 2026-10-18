@@ -83,7 +83,7 @@ var pairing = "deskpulse:" + Convert.ToBase64String(Encoding.UTF8.GetBytes(setup
 var pairingPath = Path.Combine(statePath, "pairing.txt");
 File.WriteAllText(pairingPath, pairing);
 if (OperatingSystem.IsLinux()) File.SetUnixFileMode(pairingPath, UnixFileMode.UserRead | UnixFileMode.UserWrite);
-Console.WriteLine($"\nDeskPulse 0.1 | HTTPS {listen}:{port}\nCertificate SHA-256: {fingerprint}\n");
+Console.WriteLine($"\nDeskPulse {typeof(Program).Assembly.GetName().Version?.ToString(3)} | HTTPS {listen}:{port}\nCertificate SHA-256: {fingerprint}\n");
 Console.WriteLine($"On the phone, import this file in Settings:\n{pairingPath}\n");
 if (!bool.TryParse(builder.Configuration["quiet-pairing"], out var quietPairing) || !quietPairing) Console.WriteLine(pairing + "\n");
 Console.WriteLine("Pairing expires in 10 minutes and is single-use. Restart to generate a new setup code.");

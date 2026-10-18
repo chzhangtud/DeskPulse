@@ -6,10 +6,12 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-[![Download Android APK](https://img.shields.io/badge/Download-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.1.0/DeskPulse-0.1.0.apk)
-[![Download Windows x64](https://img.shields.io/badge/Download-Windows_x64_ZIP-0078D4?style=for-the-badge)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.1.0/DeskPulse-0.1.0-windows-x64.zip)
+[![Download Android APK](https://img.shields.io/badge/Download-Android_APK-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.2.0/DeskPulse-0.2.0.apk)
+[![Download Windows x64](https://img.shields.io/badge/Download-Windows_x64_ZIP-0078D4?style=for-the-badge)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.2.0/DeskPulse-0.2.0-windows-x64.zip)
+[![Download Linux x64](https://img.shields.io/badge/Download-Linux_x64_tar.gz-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.2.0/DeskPulse-0.2.0-linux-x64.tar.gz)
+[![Download Linux arm64](https://img.shields.io/badge/Download-Linux_arm64_tar.gz-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/chzhangtud/DeskPulse/releases/download/v0.2.0/DeskPulse-0.2.0-linux-arm64.tar.gz)
 
-[v0.1.0 preview · Release notes and SHA-256 checksums](https://github.com/chzhangtud/DeskPulse/releases/tag/v0.1.0)
+[v0.2.0 preview · Release notes and SHA-256 checksums](https://github.com/chzhangtud/DeskPulse/releases/tag/v0.2.0)
 
 [![Android](https://img.shields.io/badge/Android-10%2B-3DDC84?style=flat-square&logo=android&logoColor=white)](android/)
 [![Windows](https://img.shields.io/badge/Windows-10%20%2F%2011-0078D4?style=flat-square)](collector/)
@@ -48,27 +50,29 @@ These screenshots render the Android app's bundled HTML/CSS/JavaScript interface
 
 ## Quick start
 
-### Linux (build current source)
+### Linux (download a package)
 
-Building needs a glibc Linux host, .NET 8 SDK, Bash and Python 3. The output includes the .NET runtime.
+Choose **Linux x64** or **Linux arm64** above: `uname -m` reports `x86_64` or `aarch64`, respectively. A glibc Linux host and OS runtime libraries are required; no .NET SDK is needed. Alpine/musl is unsupported.
 
 ```bash
-bash scripts/linux/build.sh
-bash scripts/linux/start-collector.sh --listen 192.168.1.20 --port 9443
+mkdir -p "$HOME/Applications/DeskPulse-0.2.0"
+tar -xzf DeskPulse-0.2.0-linux-x64.tar.gz -C "$HOME/Applications/DeskPulse-0.2.0"
+cd "$HOME/Applications/DeskPulse-0.2.0"
+./start-collector.sh --listen 192.168.1.20 --port 9443
 ```
 
-Replace the example with the host's LAN address. Privately import `artifacts/linux-x64/state/pairing.txt` on the phone to pair. ARM64 hosts use the corresponding `linux-arm64` directory. See the [Linux guide](docs/LINUX.md) for CPU sensors, scoped firewall rules and user systemd startup.
+Use the `linux-arm64` filename on ARM64 and replace the example with the host's LAN address. Install the Android APK and privately import `state/pairing.txt` to pair. Check downloads against the release's `SHA256SUMS.txt`. Optional Python 3 helpers configure UFW/firewalld and user systemd startup. See [Linux installation, dependencies, upgrades and troubleshooting](docs/LINUX.md).
 
-The v0.1.0 download buttons still provide the earlier Windows/Android preview. Build current source for Linux; the existing Android APK is compatible. WSL tests cover Linux VM metrics and services; CPU temperature may be unavailable and NAT does not establish phone LAN connectivity.
+Linux x64 has been exercised in WSL. ARM64 is cross-built and archive-checked, without a hardware runtime test. WSL metrics describe the Linux VM; CPU temperature may be unavailable and NAT tests do not prove phone LAN access. To build from source, run `bash scripts/linux/build.sh`.
 
-### Install a downloaded build
+### Install Windows / Android downloads
 
 1. Download the **Windows x64 ZIP** above and extract the entire archive into one folder. Run `DeskPulse.Collector.exe`; no .NET installation is required.
 2. In an administrator PowerShell window opened in that folder, run `./Allow-Lan.ps1 -Program "$PWD/DeskPulse.Collector.exe" -LocalAddress 192.168.1.20`, replacing the example address with the collector's printed LAN address.
 3. Download the **Android APK** above and install it on an Android 10+ phone. This preview uses a development signing certificate.
 4. Privately transfer the collector's `state/pairing.txt` to the phone. In **Settings → Connection → Import setup file**, import it and tap **Pair computer** within ten minutes of starting the collector.
 
-Keep the PC and phone on a reachable LAN. Preserve the collector's `state/` folder when upgrading. The release includes `SHA256SUMS.txt`; use `Get-FileHash -Algorithm SHA256` to verify either download.
+Keep the PC and phone on a reachable LAN. Preserve the collector's `state/` folder when upgrading. The release includes `SHA256SUMS.txt`; use `Get-FileHash -Algorithm SHA256` to verify a download.
 
 ### 1. Build Windows / Android
 
@@ -84,9 +88,9 @@ For installation without build tools, use the release downloads above. Building 
 
 | Output | Purpose |
 | --- | --- |
-| `artifacts/android/DeskPulse-0.1.0.apk` | Install on an Android 10+ phone |
+| `artifacts/android/DeskPulse-0.2.0.apk` | Install on an Android 10+ phone |
 | `artifacts/collector/` | Complete Windows collector directory |
-| `artifacts/DeskPulse-0.1.0-windows-x64.zip` | Windows distribution without private pairing state |
+| `artifacts/DeskPulse-0.2.0-windows-x64.zip` | Windows distribution without private pairing state |
 
 The script produces a development-signed APK. Configure your own release signing identity before distributing a production APK. The Windows collector is self-contained and needs no separately installed .NET runtime.
 
@@ -111,7 +115,7 @@ The PC and phone must be able to reach each other on the LAN. Do not configure p
 Transfer the APK to the phone and install it, or use an authorized USB debugging connection:
 
 ```powershell
-adb install -r artifacts/android/DeskPulse-0.1.0.apk
+adb install -r artifacts/android/DeskPulse-0.2.0.apk
 adb shell am start -W -n io.deskpulse.app/.MainActivity
 ```
 

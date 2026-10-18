@@ -34,9 +34,11 @@ jobs:
         run: python tests/collector_integration.py
       - name: Build and verify Linux archive
         if: runner.os == 'Linux'
+        env:
+          DESKPULSE_RUNTIME_VERSION: '8.0.32'
         run: |
           bash scripts/linux/build.sh
-          python tests/linux_package_test.py artifacts/DeskPulse-0.1.0-linux-x64.tar.gz
+          python tests/linux_package_test.py artifacts/DeskPulse-0.2.0-linux-x64.tar.gz
       - name: Linux helper tests
         if: runner.os == 'Linux'
         run: python tests/linux_helpers_test.py

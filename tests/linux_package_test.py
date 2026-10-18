@@ -13,6 +13,10 @@ def validate(archive):
         names = {entry.name for entry in entries}
         required = {"DeskPulse.Collector", "DeskPulse.Collector.dll", "LICENSE", "THIRD_PARTY_NOTICES.md", "INSTALL-LINUX.md", "start-collector.sh", "install-service.sh", "allow-lan.sh", "DOTNET-LICENSE.TXT", "ASPNET-LICENSE.TXT", "DOTNET-THIRD-PARTY-NOTICES.TXT", "ASPNET-THIRD-PARTY-NOTICES.TXT"}
         assert required <= names, required - names
+        assert "INSTALL-LINUX.zh-CN.md" in names, "Chinese installation guide is missing"
+        guide = tar.extractfile("INSTALL-LINUX.md").read().decode("utf-8")
+        guide_zh = tar.extractfile("INSTALL-LINUX.zh-CN.md").read().decode("utf-8")
+        assert "(INSTALL-LINUX.zh-CN.md)" in guide and "(INSTALL-LINUX.md" in guide_zh, "Packaged guide links must resolve"
         for entry in entries:
             path = PurePosixPath(entry.name)
             assert not path.is_absolute() and ".." not in path.parts

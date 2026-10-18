@@ -307,7 +307,7 @@ public class MainActivity extends Activity {
     String publicGet(String url) throws Exception {
         URL target = new URL(url);
         if (!"https".equals(target.getProtocol()) || target.getUserInfo() != null) throw new IOException("Use an HTTPS feed URL");
-        HttpsURLConnection c = (HttpsURLConnection)target.openConnection(); c.setConnectTimeout(8000); c.setReadTimeout(8000); c.setInstanceFollowRedirects(false); c.setRequestProperty("User-Agent", "DeskPulse/0.1 (personal information display)");
+        HttpsURLConnection c = (HttpsURLConnection)target.openConnection(); c.setConnectTimeout(8000); c.setReadTimeout(8000); c.setInstanceFollowRedirects(false); c.setRequestProperty("User-Agent", "DeskPulse/0.2.0 (personal information display)");
         try { if (c.getResponseCode() != 200) throw new IOException("Source HTTP " + c.getResponseCode()); return read(c.getInputStream(), 1500000); } finally { c.disconnect(); }
     }
     void fetchWeather(String city) {

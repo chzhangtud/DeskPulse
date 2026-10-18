@@ -98,7 +98,7 @@ final class StockData {
         // Public market data goes straight to its provider; no proxy, API key or collector hop.
         HttpsURLConnection connection = (HttpsURLConnection)new URL(url).openConnection(Proxy.NO_PROXY);
         connection.setConnectTimeout(8000); connection.setReadTimeout(8000); connection.setInstanceFollowRedirects(false);
-        connection.setRequestProperty("User-Agent", "DeskPulse/0.1 (personal daily stock display)");
+        connection.setRequestProperty("User-Agent", "DeskPulse/0.2.0 (personal daily stock display)");
         try {
             if (connection.getResponseCode() != 200) throw new IOException("Stock source HTTP " + connection.getResponseCode());
             return MainActivity.read(connection.getInputStream(), 500000);

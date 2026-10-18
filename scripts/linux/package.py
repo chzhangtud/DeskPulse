@@ -22,7 +22,11 @@ def package(output, rid):
     version = ET.parse(ROOT / "collector/DeskPulse.Collector.csproj").findtext(".//Version")
     for name in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
         shutil.copyfile(ROOT / name, output / name)
-    shutil.copyfile(ROOT / "docs/LINUX.md", output / "INSTALL-LINUX.md")
+    guide = (ROOT / "docs/LINUX.md").read_text(encoding="utf-8")
+    (output / "INSTALL-LINUX.md").write_text(guide.replace("(LINUX.zh-CN.md)", "(INSTALL-LINUX.zh-CN.md)"), encoding="utf-8")
+    guide_zh = (ROOT / "docs/LINUX.zh-CN.md").read_text(encoding="utf-8")
+    guide_zh = guide_zh.replace("(LINUX.md", "(INSTALL-LINUX.md").replace("(../README.zh-CN.md)", "(https://github.com/chzhangtud/DeskPulse/blob/main/README.zh-CN.md)")
+    (output / "INSTALL-LINUX.zh-CN.md").write_text(guide_zh, encoding="utf-8")
     for name in ("start-collector.sh", "install-service.sh", "allow-lan.sh"):
         shutil.copyfile(ROOT / "scripts/linux" / name, output / name)
     (output / "licenses").mkdir(exist_ok=True)

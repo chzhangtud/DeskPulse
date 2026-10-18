@@ -6,7 +6,12 @@ case "${1:-$(uname -m)}" in
     aarch64|arm64|linux-arm64) rid=linux-arm64 ;;
     *) echo 'Supported targets: linux-x64 and linux-arm64 (glibc).' >&2; exit 2 ;;
 esac
+runtime_options=()
+if [[ -n "${DESKPULSE_RUNTIME_VERSION:-}" ]]; then
+    [[ "$DESKPULSE_RUNTIME_VERSION" =~ ^8\.0\.[0-9]+$ ]] || { echo 'Use a stable .NET 8 runtime patch version.' >&2; exit 2; }
+    runtime_options+=("-p:RuntimeFrameworkVersion=$DESKPULSE_RUNTIME_VERSION")
+fi
 command -v dotnet >/dev/null || { echo '.NET 8 SDK is required to build; the resulting package is self-contained.' >&2; exit 1; }
 command -v python3 >/dev/null || { echo 'Python 3 is required to package licenses and the archive.' >&2; exit 1; }
-dotnet publish "$root/collector" -c Release -r "$rid" --self-contained true -p:DebugType=None -p:DebugSymbols=false -o "$root/artifacts/$rid"
+dotnet publish "$root/collector" -c Release -r "$rid" --self-contained true -p:DebugType=None -p:DebugSymbols=false "${runtime_options[@]}" -o "$root/artifacts/$rid"
 python3 "$root/scripts/linux/package.py" "$root/artifacts/$rid" "$rid"

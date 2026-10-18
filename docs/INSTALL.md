@@ -1,6 +1,6 @@
 # Installation and operation
 
-The Android display can pair with a Windows or Linux collector. This page covers Windows and shared Android settings; see [Linux installation, sensors and systemd](LINUX.md) for Linux/WSL. Existing v0.1.0 Android APKs use the same protocol and can pair with a Linux build from current source.
+The Android display can pair with a Windows or Linux collector. This page covers Windows and shared Android settings; see [Linux installation, sensors and systemd](LINUX.md) for Linux/WSL. Download the matching v0.2.0 packages from [GitHub Releases](https://github.com/chzhangtud/DeskPulse/releases/tag/v0.2.0). The previous v0.1.0 Android APK also uses the same pairing protocol.
 
 ## Windows collector
 
@@ -68,7 +68,7 @@ Use Android 10/API 29 or newer. The APK has no native ABI restriction. Allow ins
 For an attached USB-debugging phone:
 
 ```powershell
-adb install -r artifacts/android/DeskPulse-0.1.0.apk
+adb install -r artifacts/android/DeskPulse-0.2.0.apk
 adb shell am start -W -n io.deskpulse.app/.MainActivity
 ```
 

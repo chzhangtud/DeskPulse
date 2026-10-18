@@ -1,8 +1,14 @@
-param([string]$AndroidSdk = $env:ANDROID_HOME, [string]$JavaHome = $env:JAVA_HOME)
+param([string]$AndroidSdk = $env:ANDROID_HOME, [string]$JavaHome = $env:JAVA_HOME, [string]$RuntimeVersion)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 Push-Location $root
 try {
+    [xml]$collectorProject = Get-Content -LiteralPath collector\DeskPulse.Collector.csproj -Raw
+    $version = [string]$collectorProject.Project.PropertyGroup.Version
+    $androidProject = Get-Content -LiteralPath android\app\build.gradle -Raw
+    if (-not $version -or $androidProject -notmatch "versionName '$([regex]::Escape($version))'") {
+        throw 'Collector and Android versions must match before packaging'
+    }
     $defaultSdk = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
     if (-not $AndroidSdk -and (Test-Path -LiteralPath $defaultSdk)) { $AndroidSdk = $defaultSdk }
     if (-not $JavaHome) {
@@ -12,15 +18,20 @@ try {
     }
     if ($AndroidSdk) { $env:ANDROID_HOME = $AndroidSdk }
     if ($JavaHome) { $env:JAVA_HOME = $JavaHome }
+    $runtimeOptions = @()
+    if ($RuntimeVersion) {
+        if ($RuntimeVersion -notmatch '^8\.0\.\d+$') { throw 'Use a stable .NET 8 runtime patch version' }
+        $runtimeOptions += "-p:RuntimeFrameworkVersion=$RuntimeVersion"
+    }
     # Public binaries must not embed local source/PDB paths.
-    dotnet publish collector -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false -o artifacts\collector
+    dotnet publish collector -c Release -r win-x64 --self-contained true -p:DebugType=None -p:DebugSymbols=false @runtimeOptions -o artifacts\collector
     if ($LASTEXITCODE -ne 0) { throw 'Collector build failed' }
     & android\gradlew.bat -p android assembleDebug lintDebug
     if ($LASTEXITCODE -ne 0) { throw 'Android build or lint failed' }
     node --test tests\core.test.cjs tests\i18n.test.cjs tests\stocks.test.cjs
     if ($LASTEXITCODE -ne 0) { throw 'Core tests failed' }
     New-Item -ItemType Directory -Force artifacts\android | Out-Null
-    Copy-Item -LiteralPath android\app\build\outputs\apk\debug\app-debug.apk -Destination artifacts\android\DeskPulse-0.1.0.apk
+    Copy-Item -LiteralPath android\app\build\outputs\apk\debug\app-debug.apk -Destination "artifacts\android\DeskPulse-$version.apk"
     Copy-Item -LiteralPath scripts\Start-Collector.ps1,scripts\Allow-Lan.ps1,scripts\Install-CpuSensor.ps1,scripts\Register-CollectorStartup.ps1,scripts\Watch-Collector.ps1 -Destination artifacts\collector
     Copy-Item -LiteralPath THIRD_PARTY_NOTICES.md -Destination artifacts\collector
     Copy-Item -LiteralPath LICENSE -Destination artifacts\collector
@@ -41,6 +52,6 @@ try {
     # Package only published files, never the running installation's private state directory.
     $distributionFiles = Get-ChildItem -LiteralPath artifacts\collector -File | Where-Object { $_.Extension -ne '.pdb' } | Select-Object -ExpandProperty FullName
     $distributionFiles += (Resolve-Path -LiteralPath artifacts\collector\licenses).Path
-    Compress-Archive -LiteralPath $distributionFiles -DestinationPath artifacts\DeskPulse-0.1.0-windows-x64.zip -Force
-    Write-Host 'Outputs: artifacts/collector and artifacts/android/DeskPulse-0.1.0.apk'
+    Compress-Archive -LiteralPath $distributionFiles -DestinationPath "artifacts\DeskPulse-$version-windows-x64.zip" -Force
+    Write-Host "Outputs: artifacts/DeskPulse-$version-windows-x64.zip and artifacts/android/DeskPulse-$version.apk"
 } finally { Pop-Location }

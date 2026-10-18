@@ -1,4 +1,4 @@
-# DeskPulse 0.1 architecture
+# DeskPulse 0.2 architecture
 
 DeskPulse combines a local Windows/Linux telemetry service with an immersive Android display. The phone also fetches weather, daily stocks and RSS headlines independently.
 
@@ -55,7 +55,7 @@ English is the installation default; settings can persist Simplified Chinese. Bu
 
 Stock categories/ranges persist with display preferences. Five/ten-day windows count actual trading observations; month windows use calendar cutoffs clamped at month ends. Percent changes use the close preceding the selected window. Insufficient cached history is marked, rather than presented as a complete longer-period return. Raw USD price changes exclude dividends. English uses standard green-up/red-down and Chinese red-up/green-down, with arrows/signs. Flexible charts are about 115px wide on the phone. Category and range dropdown widths follow their current labels. Source/Stocks headings and data-region starts share alignment. The fixed-width Monitor/Info action prevents clock movement. The single-line connection/host/freshness uses explicit margins compatible with Chromium 81, which lacks flex gap. Scroll indicators are non-interactive overlays, track list geometry and fade after scrolling. Provider text uses textContent, never HTML.
 
-The Android system folder picker grants retained read access to a phone-local directory. Immediate children only, JPEG/PNG/WebP, at most 2,000 URI entries. Sequential/shuffled previous/next, pin, interval, cover/contain and horizontal focal position are supported. Images decode to a maximum dimension of 2048 pixels and replace one cached JPEG; the original folder is never copied in full. Invalid/deleted images are skipped. Empty, unreadable or revoked folders fall back with a notice. The built-in-background button releases access and clears the image cache. Cached wallpaper and pinned selection survive collector loss and app restarts. Select the folder again to rescan additions immediately. Rotation has no crossfade in 0.1 to avoid holding another full-size bitmap.
+The Android system folder picker grants retained read access to a phone-local directory. Immediate children only, JPEG/PNG/WebP, at most 2,000 URI entries. Sequential/shuffled previous/next, pin, interval, cover/contain and horizontal focal position are supported. Images decode to a maximum dimension of 2048 pixels and replace one cached JPEG; the original folder is never copied in full. Invalid/deleted images are skipped. Empty, unreadable or revoked folders fall back with a notice. The built-in-background button releases access and clears the image cache. Cached wallpaper and pinned selection survive collector loss and app restarts. Select the folder again to rescan additions immediately. Rotation has no crossfade in this preview to avoid holding another full-size bitmap.
 
 ## Delivery scope
 
