@@ -18,6 +18,8 @@
   --dim: 0.3;
   --radius: 8px;
   --tap: 48px;
+  --base-font: 14px;
+  --large-text-scale: 1.25;
   --mono: "Roboto Mono", Consolas, monospace;
   --sans: Roboto, "Segoe UI", Arial, sans-serif;
   color-scheme: dark;
@@ -29,7 +31,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: #08111f;
-  font: 14px/1.5 var(--sans);
+  font: var(--base-font)/1.5 var(--sans);
   overflow: hidden;
 }
 body.day {
@@ -390,7 +392,29 @@ canvas {
   border-top: 1px solid var(--line);
 }
 .details > section {
+  display: flex;
   min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+}
+/* A panel renders whatever the collector reports, so its content height is data-driven
+   while the row it sits in is not. Surplus used to paint past the panel and off the
+   viewport, where body{overflow:hidden} cut the last line mid-glyph. Scrolling inside the
+   panel keeps the final mount or process reachable for any number of them, at any size. */
+.details > section > div {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+.details > section > div::-webkit-scrollbar {
+  width: 4px;
+}
+.details > section > div::-webkit-scrollbar-thumb {
+  border-radius: 2px;
+  background: var(--control-line);
 }
 h2 {
   display: flex;
@@ -1150,159 +1174,168 @@ select option {
   font-size: 13px;
 }
 @media (max-height: 420px) and (min-width: 600px) {
+  /* One scale factor for the whole desk layout. The lengths below are authored against a
+     780x360 CSS px viewport; driving the root font size from the smaller of the two
+     viewport ratios keeps those proportions on any landscape panel instead of only the
+     resolution this was first tuned on. The media query itself stays in px because it
+     selects a device class, not a scale. */
+  html {
+    font-size: clamp(9px, min(2.0513vw, 4.4444vh), 22px);
+    --base-font: 0.875rem;
+  }
   main {
-    padding: 0 24px 4px;
+    padding: 0 1.5rem 0.25rem;
   }
   .metrics {
     flex: 1;
-    min-height: 170px;
-    padding: 4px 0 10px;
-    column-gap: 24px;
+    min-height: 10.625rem;
+    padding: 0.25rem 0 0.625rem;
+    column-gap: 1.5rem;
   }
   .metric-label {
-    font-size: 12px;
-    line-height: 18px;
+    font-size: 0.75rem;
+    line-height: 1.125rem;
     margin-bottom: 0;
   }
   .metric-state {
-    font-size: 10px;
+    font-size: 0.625rem;
   }
   .value {
-    min-height: 45px;
-    font-size: 40px;
+    min-height: 2.8125rem;
+    font-size: 2.5rem;
     line-height: 1.1;
   }
   .sub {
-    min-height: 16px;
-    font-size: 10.5px;
+    min-height: 1rem;
+    font-size: 0.65625rem;
   }
   canvas {
-    margin-top: 3px;
-    min-height: 42px;
-    max-height: 88px;
+    margin-top: 0.1875rem;
+    min-height: 2.625rem;
+    max-height: 5.5rem;
   }
   .axis {
-    margin-top: 2px;
-    font-size: 10px;
-    line-height: 12px;
+    margin-top: 0.125rem;
+    font-size: 0.625rem;
+    line-height: 0.75rem;
   }
   .axis span {
-    line-height: 12px;
+    line-height: 0.75rem;
   }
   .net-value {
-    min-height: 29px;
-    padding-top: 2px;
-    font-size: 23px;
+    min-height: 1.8125rem;
+    padding-top: 0.125rem;
+    font-size: 1.4375rem;
     line-height: 1.2;
   }
   .net-up {
-    font-size: 12px;
-    line-height: 16px;
+    font-size: 0.75rem;
+    line-height: 1rem;
   }
   #networkCard .sub {
-    font-size: 10px;
+    font-size: 0.625rem;
   }
   .details {
-    flex: 0 0 132px;
-    min-height: 132px;
-    padding-top: 8px;
+    flex: 0 0 8.25rem;
+    min-height: 8.25rem;
+    padding-top: 0.5rem;
   }
   .details h2 {
     align-items: center;
-    font-size: 13px;
-    line-height: 18px;
-    margin-bottom: 6px;
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+    margin-bottom: 0.375rem;
   }
   .details .row {
     align-items: center;
-    font-size: 12px;
-    line-height: 18px;
-    margin-bottom: 2px;
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    margin-bottom: 0.125rem;
   }
   .details .secondary {
-    font-size: 10px;
-    line-height: 18px;
+    font-size: 0.625rem;
+    line-height: 1.125rem;
   }
   .disk {
-    margin-bottom: 9px;
+    margin-bottom: 0.5625rem;
   }
   .disk .row {
     margin-bottom: 0;
   }
   .bar {
-    margin-top: 3px;
+    margin-top: 0.1875rem;
   }
   .note {
-    font-size: 10px;
-    line-height: 12px;
+    font-size: 0.625rem;
+    line-height: 0.75rem;
   }
   #information {
-    padding: 12px 0;
+    padding: 0.75rem 0;
   }
   .eyebrow {
-    margin-top: 8px;
-    font-size: 11px;
+    margin-top: 0.5rem;
+    font-size: 0.6875rem;
   }
   #bigClock {
-    font-size: 48px;
+    font-size: 3rem;
     line-height: 1.1;
   }
   #date {
-    font-size: 11px;
+    font-size: 0.6875rem;
   }
   #offlineNotice {
-    font-size: 10px;
+    font-size: 0.625rem;
     line-height: 1.4;
-    margin: 6px 0 0;
+    margin: 0.375rem 0 0;
   }
   .weather-value {
-    font-size: 36px;
+    font-size: 2.25rem;
     line-height: 1.15;
     margin-top: 0;
   }
   .desk-panel .weather-panel {
-    margin-top: 10px;
-    padding-top: 10px;
+    margin-top: 0.625rem;
+    padding-top: 0.625rem;
   }
   .desk-panel h2 {
-    margin-bottom: 4px;
+    margin-bottom: 0.25rem;
   }
   #weatherDetail {
-    font-size: 10px;
+    font-size: 0.625rem;
   }
   #forecast {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
-    margin: 8px 0;
-    font-size: 11px;
+    gap: 0.375rem;
+    margin: 0.5rem 0;
+    font-size: 0.6875rem;
   }
   #forecast > div {
     margin: 0;
   }
   #forecast small {
-    margin-bottom: 3px;
+    margin-bottom: 0.1875rem;
   }
   .news-list button {
-    padding: 7px 0;
-    font-size: 12px;
+    padding: 0.4375rem 0;
+    font-size: 0.75rem;
   }
   .dialog-head {
-    min-height: 48px;
+    min-height: 3rem;
     padding-top: 0;
     padding-bottom: 0;
   }
   .dialog-head h2 {
-    font-size: 18px;
+    font-size: 1.125rem;
   }
   .dialog-bottom {
-    min-height: 64px;
+    min-height: 4rem;
   }
   .settings-nav {
-    padding: 2px 8px;
+    padding: 0.125rem 0.5rem;
   }
   .settings-nav button + button {
-    margin-top: 8px;
+    margin-top: 0.5rem;
   }
 }
 @media (max-width: 700px) and (min-width: 600px) {
@@ -1478,22 +1511,26 @@ select option {
 }
 .large-text .metrics {
   flex: none;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Column count follows the available width. A fixed count overflowed wide landscape
+     panels and wasted half of them on narrow ones. */
+  grid-template-columns: repeat(auto-fit, minmax(clamp(9rem, 18vw, 16rem), 1fr));
   grid-template-rows: auto;
-  row-gap: 24px;
+  row-gap: clamp(0.5rem, 3vh, 1.5rem);
   min-height: 0;
-  padding: 16px 0 24px;
+  padding: clamp(0.5rem, 2vh, 1rem) 0 clamp(0.75rem, 3vh, 1.5rem);
 }
 .large-text .metric {
-  min-height: 190px;
+  min-height: clamp(6rem, 26vh, 12rem);
 }
 .large-text .details {
-  display: block;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(12rem, 24vw, 22rem), 1fr));
+  gap: 0 clamp(0.75rem, 2vw, 1.5rem);
   flex: none;
   min-height: 0;
 }
 .large-text .details > section {
-  padding: 16px 0;
+  padding: clamp(0.5rem, 2vh, 1rem) 0;
 }
 .large-text .row {
   margin-bottom: 6px;
@@ -1526,14 +1563,14 @@ select option {
   padding: 20px 0;
 }
 .large-text #forecast {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(4.5rem, 1fr));
 }
 .large-text .news-scroll {
   flex: none;
 }
 .large-text .news-list {
   flex: none;
-  max-height: 400px;
+  max-height: 50vh;
 }
 .large-text .settings-layout {
   flex-direction: column;

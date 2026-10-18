@@ -179,7 +179,11 @@ public class MainActivity extends Activity {
                 result.put("paired", !credential.isEmpty()); result.put("incoming", prefs.getString("incoming", ""));
                 result.put("weather", object(prefs.getString("weather", "{}"))); result.put("news", object(prefs.getString("news", "{}")));
                 result.put("stocks", stocks.cache());
-                result.put("folder", prefs.getString("folder", "")); return result.toString();
+                result.put("folder", prefs.getString("folder", ""));
+                // The page needs the host font scale as a ratio: comparing a computed CSS pixel
+                // size against a fixed threshold misreads it whenever the stylesheet's base size
+                // or the screen density differs from the one that threshold was tuned on.
+                result.put("fontScale", getResources().getConfiguration().fontScale); return result.toString();
             } catch (Exception e) { return "{}"; }
         }
         @JavascriptInterface public void saveSettings(String json) {

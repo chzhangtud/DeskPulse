@@ -159,10 +159,18 @@ function applyAppearance() {
     );
   }
   document.body.className = C.themeAt(settings, new Date());
-  // WebView applies Android font scale to computed CSS pixels; preserve readability by reflowing.
+  // Android multiplies CSS pixels by Configuration.fontScale, and the host reports that
+  // ratio directly. Inferring it from a computed size instead compares against whatever
+  // base size the stylesheet happens to declare, so it flips on the wrong devices.
+  const largeTextScale =
+    parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue(
+        "--large-text-scale",
+      ),
+    ) || 1.25;
   document.documentElement.classList.toggle(
     "large-text",
-    parseFloat(getComputedStyle(document.body).fontSize) > 16,
+    (Number(boot.fontScale) || 1) > largeTextScale,
   );
   document.documentElement.style.setProperty(
     "--opacity",
